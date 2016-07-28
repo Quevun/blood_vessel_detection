@@ -20,18 +20,20 @@ def ridgeStrength():
         scaled_img.append(hlpr.ScaledImage(img,scale[i]))
         #cv2.imwrite('output/ridgeStrength_results/ridgeStrength' + str(i) + '.jpg',hlpr.float2uint(scaled_img[i].getRidgeStrength()))
         ridge_strength[:,:,i] = scaled_img[i].getRidgeStrength()
-        
+    
+    ######################################################
+    # Scale space derivatives
+    """#Using Sobel
     scale_deriv = np.zeros(np.shape(ridge_strength))
     scale_deriv2 = np.zeros(np.shape(ridge_strength))
-    #bin1 = np.zeros(np.shape(ridge_strength))
+    bin1 = np.zeros(np.shape(ridge_strength))
     bin2 = np.zeros(np.shape(ridge_strength))
     bin3 = np.zeros(np.shape(ridge_strength))
-        
     for i in range(np.size(ridge_strength,1)):
         slice = ridge_strength[:,i,:]
         slice = cv2.GaussianBlur(slice,(19,19),3)
         scale_deriv[:,i,:] = cv2.Sobel(slice,cv2.CV_64F,1,0)
-        scale_deriv2[:,i,:] = cv2.Sobel(slice,cv2.CV_64F,2,0)
+        scale_deriv2[:,i,:] = cv2.Sobel(slice,cv2.CV_64F,2,0)                
         #bin1[:,i,:] = np.around(scale_deriv[:,i,:],2) == 0
         bin2[:,i,:] = scale_deriv2[:,i,:] < 0
         #bin3[:,i,:] = np.logical_and(bin1,bin2)
@@ -43,5 +45,22 @@ def ridgeStrength():
     for i in range(len(scale)):
         #cv2.imwrite('output/ridgeStrength_results/bin_one'+str(i)+'.jpg',bin1[:,:,i])
         cv2.imwrite('output/ridgeStrength_results/bin_two'+str(i)+'.jpg',bin2[:,:,i])
+    """
+
+    #Subtract scale images directly
+    scale_deriv = np.zeros((np.size(ridge_strength,0),np.size(ridge_strength,1),np.size(ridge_strength,2)-2))
+    scale_deriv2 = np.zeros((np.size(ridge_strength,0),np.size(ridge_strength,1),np.size(ridge_strength,2)-4))
     
-    return bin3
+    for i in range(np.size(ridge_strength,2)-2):
+        scale_deriv[:,:,i] = ridge_strength[:,:,i+2]-ridge_strength[:,:,i]
+        
+    for i in range(np.size(ridge_strength,2)-4):    
+        scale_deriv2[:,:,i] = scale_deriv[:,:,i+2]-scale_deriv[:,:,i]
+        
+    bin2 = scale_deriv2 < 0
+    bin2 = bin2.astype(np.uint8) * 255
+    for i in range(np.size(bin2,2)):
+        cv2.imwrite('output/ridgeStrength_results/bin_two'+str(i)+'.jpg',bin2[:,:,i])
+    ######################################################    
+    
+    return bin2

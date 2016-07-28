@@ -9,7 +9,7 @@ import numpy as np
 
 def getScaleSpace(img,scale):
     sigma = np.sqrt(scale)
-    size = (np.ceil(sigma)*6+1).astype(int)
+    size = (np.ceil(sigma)*10+1).astype(int)
     scaled_img = []
     for i in range(len(sigma)):
         scaled_img.append(cv2.GaussianBlur(img,(size[i],size[i]),sigma[i]))
@@ -17,7 +17,7 @@ def getScaleSpace(img,scale):
     
 def getScaledImg(img,scale):
     sigma = np.sqrt(scale)
-    size = int(np.ceil(sigma)*6+1)
+    size = int(np.ceil(sigma)*10+1)
     img = img.astype(np.float64)
     scaled_img = cv2.GaussianBlur(img,(size,size),sigma)
     #scaled_img = cv2.medianBlur(img,size)    
