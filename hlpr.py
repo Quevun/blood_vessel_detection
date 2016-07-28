@@ -103,28 +103,15 @@ class ScaledImage:
         Lqq = cos_beta**2*Lxx + 2*sin_beta*cos_beta*Lxy + sin_beta**2*Lyy
         
         bin1 = Lq.astype(np.int32) == 0
-        bin2 = Lqq >= 0.005
+        bin2 = Lqq >= 0.05
         bin3 = abs(Lqq) >= abs(Lpp)
         bin4 = np.logical_and(bin3,np.logical_and(bin1,bin2))
-        bin4 = bin4 == False
-        ridge = self.getImg() * bin4
-        return ridge
-        
-        ######################################################
-        # Threshold with Lpp Lqq
-        #eigen = np.zeros((np.size(Lpp,0),np.size(Lpp,1),2))
-        #eigen[:,:,0] = Lpp
-        #eigen[:,:,1] = Lqq        
-        #major = np.amax(eigen,2) > 0.05
-        #major = major.astype(np.uint8)*255
-        #major = Lqq > 0.05
-        #major = major.astype(np.uint8)*255      
-        #return major
-        ######################################################
+        #ridge = self.getImg() * bin4
+        return bin4
             
     def getRidgeStrength(self):
         scale = self.getScale()
         sobelxx = self.getSobelxx()
         sobelyy = self.getSobelyy()
         sobelxy = self.getSobelxy()
-        return scale**4 * (sobelxx + sobelyy)**2 * ((sobelxx - sobelyy)**2 + 4 * sobelxy**2)
+        return scale**3 * (sobelxx + sobelyy)**2 * ((sobelxx - sobelyy)**2 + 4 * sobelxy**2)
