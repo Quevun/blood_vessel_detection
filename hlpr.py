@@ -115,3 +115,9 @@ class ScaledImage:
         sobelyy = self.getSobelyy()
         sobelxy = self.getSobelxy()
         return scale**3 * (sobelxx + sobelyy)**2 * ((sobelxx - sobelyy)**2 + 4 * sobelxy**2)
+        
+#class ScaleCuboid:
+#    def __init__(self,img,scale):
+#        for i in range(len(scale)):
+#            scaled_img.append(hlpr.ScaledImage(img,scale[i]))
+#            ridge_strength[:,:,i] = scaled_img[i].getRidgeStrength()
