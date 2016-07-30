@@ -11,7 +11,7 @@ import numpy as np
 import cv2
 
 ridge = findRidge.findRidge()
-ridgeStrength = ridgeStrength.ridgeStrength()
+ridge_strength = ridgeStrength.ridgeStrength()
 
 #bin = np.logical_and(ridge,ridgeStrength)
 

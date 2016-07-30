@@ -113,21 +113,41 @@ class ScaledImage(object):
         sobelxy = self.getSobelxy()
         return scale**3 * (sobelxx + sobelyy)**2 * ((sobelxx - sobelyy)**2 + 4 * sobelxy**2)
 
-class ImgCuboid(object):
+class RidgeStrCuboid(object):
     def __init__(self,img,scale):
         self.shape = (np.size(img,0),np.size(img,1),len(scale))
-        self.cuboid = None
-        
+        self.cuboid = np.zeros((np.size(img,0),np.size(img,1),len(scale)))
+        for i in range(len(scale)):
+            self.cuboid[:,:,i] = ScaledImage(img,scale[i]).getRidgeStrength()
+            
     def getScaleDeriv(self):
         max_i = self.shape[2]-1
         self.scale_deriv = np.zeros(self.shape)
         for i in range(self.shape[2]):
             self.scale_deriv[:,:,i] = self.cuboid[:,:,(i+1)%max_i]-self.cuboid[:,:,i-1]
         return self.scale_deriv
-
-class RidgeStrCuboid(ImgCuboid):
-    def __init__(self,img,scale):
-        self.shape = (np.size(img,0),np.size(img,1),len(scale))
-        self.cuboid = np.zeros((np.size(img,0),np.size(img,1),len(scale)))
-        for i in range(len(scale)):
-            self.cuboid[:,:,i] = ScaledImage(img,scale[i]).getRidgeStrength()
+        
+    def getScaleDeriv2(self):
+        max_i = self.shape[2] - 1
+        self.scale_deriv2 = np.zeros(self.shape)
+        if not hasattr(self,'scale_deriv'):
+            print "First order scale derivative doesn't exist, creating one..."
+            self.getScaleDeriv()
+        for i in range(self.shape[2]):    
+            self.scale_deriv2[:,:,i] = self.scale_deriv[:,:,(i+1)%max_i]-self.scale_deriv[:,:,i-1]
+        return self.scale_deriv2
+            
+class BinImgCuboid(object):
+    def __init__(self,cuboid):
+        assert cuboid.dtype == 'bool'
+        self.cuboid = cuboid
+        self.shape = np.shape(cuboid)
+        
+    def lump(self,lump_size):
+        lump_bin = 
+        for i in range(0,self.shape[2]-lump_size+1,lump_size):
+            lump_bin = self.cuboid[:,:,i]
+            for j in range(1,lump_size):
+                lump_bin += self.cuboid[:,:,i+j]
+                
+        return BinImgCuboid()
