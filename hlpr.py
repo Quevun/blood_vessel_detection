@@ -31,7 +31,7 @@ def float2uint(sobelx):
     sobelx = sobelx.astype(np.uint8)
     return sobelx
     
-class ScaledImage:
+class ScaledImage(object):
     def __init__(self,img,scale):
         self.scale = scale
         self.img = getScaledImg(img,scale) # floating point image
@@ -62,7 +62,6 @@ class ScaledImage:
             return self.sobely
         
     def getSobelxx(self):
-        scale = self.getScale()
         if self.sobelxx is None:
             self.sobelxx = cv2.Sobel(self.img,cv2.CV_64F,2,0)#,ksize=scale + scale % 2 - 1)
             return self.sobelxx
@@ -70,7 +69,6 @@ class ScaledImage:
             return self.sobelxx
             
     def getSobelyy(self):
-        scale = self.getScale()
         if self.sobelyy is None:
             self.sobelyy = cv2.Sobel(self.img,cv2.CV_64F,0,2)#,ksize=scale + scale % 2 - 1)
             return self.sobelyy
@@ -78,7 +76,6 @@ class ScaledImage:
             return self.sobelyy
             
     def getSobelxy(self):
-        scale = self.getScale()
         if self.sobelxy is None:
             self.sobelxy = cv2.Sobel(self.img,cv2.CV_64F,1,1)#,ksize=scale + scale % 2 - 1)
             return self.sobelxy
@@ -115,9 +112,22 @@ class ScaledImage:
         sobelyy = self.getSobelyy()
         sobelxy = self.getSobelxy()
         return scale**3 * (sobelxx + sobelyy)**2 * ((sobelxx - sobelyy)**2 + 4 * sobelxy**2)
+
+class ImgCuboid(object):
+    def __init__(self,img,scale):
+        self.shape = (np.size(img,0),np.size(img,1),len(scale))
+        self.cuboid = None
         
-#class ScaleCuboid:
-#    def __init__(self,img,scale):
-#        for i in range(len(scale)):
-#            scaled_img.append(hlpr.ScaledImage(img,scale[i]))
-#            ridge_strength[:,:,i] = scaled_img[i].getRidgeStrength()
+    def getScaleDeriv(self):
+        max_i = self.shape[2]-1
+        self.scale_deriv = np.zeros(self.shape)
+        for i in range(self.shape[2]):
+            self.scale_deriv[:,:,i] = self.cuboid[:,:,(i+1)%max_i]-self.cuboid[:,:,i-1]
+        return self.scale_deriv
+
+class RidgeStrCuboid(ImgCuboid):
+    def __init__(self,img,scale):
+        self.shape = (np.size(img,0),np.size(img,1),len(scale))
+        self.cuboid = np.zeros((np.size(img,0),np.size(img,1),len(scale)))
+        for i in range(len(scale)):
+            self.cuboid[:,:,i] = ScaledImage(img,scale[i]).getRidgeStrength()

@@ -63,8 +63,9 @@ def ridgeStrength():
     
     ###########################################################################
     #   Lump several adjacent scales together
-    
+    """
     lump_size = 3
+    lump_bin = np.zeros()
     for i in range(0,np.size(bin1,2)-lump_size+1,lump_size):
         #temp1 = np.logical_or(bin1[:,:,i],bin1[:,:,i+1])
         #temp2 = np.logical_or(temp1,bin1[:,:,i+2])
@@ -79,15 +80,16 @@ def ridgeStrength():
         lump_bin1 = lump_bin1 > 0   # Equivalent to 'or' operation for one whole lump
         lump_bin2 = lump_bin2 > 0
         lump_bin = np.logical_and(lump_bin1,lump_bin2).astype(np.uint8)*255
-        cv2.imwrite('output/ridgeStrength_results/lump_bin'+str(i/lump_size)+'.jpg',lump_bin)
-
+    """
     ###########################################################################
         
-    bin1 = bin1.astype(np.uint8) * 255
-    bin2 = bin2.astype(np.uint8) * 255
-        
+    #bin1 = bin1.astype(np.uint8) * 255
+    #bin2 = bin2.astype(np.uint8) * 255
+    bin3 = np.logical_and(bin1,bin2)
+    bin3 = bin3.astype(np.uint8)*255
+
     #for i in range(np.size(bin2,2)):
     #    cv2.imwrite('output/ridgeStrength_results/bin_one'+str(i)+'.jpg',bin1[:,:,i])
     ######################################################
     
-    return ridge_strength
+    return scale_deriv

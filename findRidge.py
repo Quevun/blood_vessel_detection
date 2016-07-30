@@ -12,7 +12,7 @@ import hlpr
 def findRidge():
     img = cv2.imread('input/IR3/test3.bmp',cv2.IMREAD_GRAYSCALE)
     #img = img[:,100:]
-    scale = range(5,150,1)
+    scale = range(5,256,5)
     scaled_img = []
     ridge = np.zeros((np.size(img,0),np.size(img,1),len(scale)))
     
