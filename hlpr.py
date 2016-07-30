@@ -144,10 +144,26 @@ class BinImgCuboid(object):
         self.shape = np.shape(cuboid)
         
     def lump(self,lump_size):
-        lump_bin = 
+        self.lump_size = lump_size
+        lump_bin = np.zeros((self.shape[0],self.shape[1],self.shape[2]/lump_size))
         for i in range(0,self.shape[2]-lump_size+1,lump_size):
-            lump_bin = self.cuboid[:,:,i]
+            lump_bin[:,:,i/lump_size] = self.cuboid[:,:,i]
             for j in range(1,lump_size):
-                lump_bin += self.cuboid[:,:,i+j]
-                
-        return BinImgCuboid()
+                lump_bin[:,:,i/lump_size] += self.cuboid[:,:,i+j]
+        return lump_bin
+        
+    def lump2(self,lump_size):
+        self.lump_size = lump_size
+        lump_bin = np.zeros((self.shape[0],self.shape[1],self.shape[2]/lump_size))
+        for i in range(0,self.shape[2]-lump_size+1,lump_size):
+            lump_bin[:,:,i/lump_size] = self.cuboid[:,:,i]
+            for j in range(1,lump_size):
+                lump_bin[:,:,i/lump_size] += self.cuboid[:,:,i+j]
+        lump_bin = lump_bin > 0
+        return BinImgCuboid(lump_bin)
+        
+    def __mul__(self,other):
+        return self.cuboid * other
+        
+    def __rmul__(self,other):
+        return self.cuboid * other

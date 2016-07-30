@@ -11,7 +11,7 @@ import hlpr
 
 def ridgeStrength():
     img = cv2.imread('input/IR3/test3.bmp',cv2.IMREAD_GRAYSCALE)
-    scale = np.arange(5,256,5)
+    scale = np.arange(5,256,3)
     ridge_str_cuboid = hlpr.RidgeStrCuboid(img,scale)
 
     ######################################################
@@ -51,23 +51,23 @@ def ridgeStrength():
     #   Lump several adjacent scales together
     
     lump_size = 3
-    for i in range(0,np.size(bin1,2)-lump_size+1,lump_size):
-        lump_bin1 = bin1[:,:,i]
-        lump_bin2 = bin2[:,:,i]
-        for j in range(1,lump_size):
-            lump_bin1 += bin1[:,:,i+j]
-            lump_bin2 += bin2[:,:,i+j]
-        lump_bin = np.logical_and(lump_bin1,lump_bin2).astype(np.uint8)*255
+    lump_bin1 = hlpr.BinImgCuboid(bin1).lump(lump_size)
+    lump_bin2 = hlpr.BinImgCuboid(bin2).lump(lump_size)
+    lump_bin = np.logical_and(lump_bin1,lump_bin2)
     
+    lump2_bin1 = hlpr.BinImgCuboid(bin1).lump2(lump_size)
+    lump2_bin2 = hlpr.BinImgCuboid(bin2).lump2(lump_size)
+    lump2_bin = lump2_bin1*lump2_bin2
+    
+    print np.array_equal(lump_bin,lump2_bin)
     ###########################################################################
         
     #bin1 = bin1.astype(np.uint8) * 255
     #bin2 = bin2.astype(np.uint8) * 255
-#    bin3 = np.logical_and(bin1,bin2)
-#    bin3 = bin3.astype(np.uint8)*255
+    #lump_bin = lump_bin.astype(np.uint8)*255
 
-    #for i in range(np.size(bin2,2)):
-    #    cv2.imwrite('output/ridgeStrength_results/bin_one'+str(i)+'.jpg',bin1[:,:,i])
+    #for i in range(np.size(lump_bin,2)):
+    #    cv2.imwrite('output/ridgeStrength_results/lump_bin'+str(i)+'.jpg',lump_bin[:,:,i])
     ######################################################
-    
+
     return lump_bin
