@@ -143,7 +143,7 @@ class BinImgCuboid(object):
         self.cuboid = cuboid
         self.shape = np.shape(cuboid)
         
-    def lump(self,lump_size):
+    def lump2(self,lump_size):
         self.lump_size = lump_size
         lump_bin = np.zeros((self.shape[0],self.shape[1],self.shape[2]/lump_size))
         for i in range(0,self.shape[2]-lump_size+1,lump_size):
@@ -152,7 +152,7 @@ class BinImgCuboid(object):
                 lump_bin[:,:,i/lump_size] += self.cuboid[:,:,i+j]
         return lump_bin
         
-    def lump2(self,lump_size):
+    def lump(self,lump_size):
         self.lump_size = lump_size
         lump_bin = np.zeros((self.shape[0],self.shape[1],self.shape[2]/lump_size))
         for i in range(0,self.shape[2]-lump_size+1,lump_size):
@@ -163,7 +163,55 @@ class BinImgCuboid(object):
         return BinImgCuboid(lump_bin)
         
     def __mul__(self,other):
-        return self.cuboid * other
+        assert other.cuboid.dtype == 'bool'
+        return self.cuboid * other.cuboid
         
-    def __rmul__(self,other):
-        return self.cuboid * other
+class Pixel(object):
+    def __init__(self,coord,ridge_str):
+        self.y = coord[0]
+        self.x = coord[1]
+        self.t = coord[2]
+        self.ridge_str = ridge_str
+        
+    def getCoord(self):
+        return (self.y,self.x,self.t)
+        
+    def getRidgeStr(self):
+        return self.ridge_str
+        
+class Ridge(object):
+    
+    def __init__(self,pixel,cuboid):
+        assert isinstance(pixel,Pixel)
+        self.unexplored = [pixel]
+        self.explored = []
+        cuboid[pixel.y,pixel.x,pixel.t] = 0
+        
+    def checkAdjacent(self,pixel,cuboid):
+        #print ((pixel.y-1,pixel.x,pixel.t),(pixel.y+1,pixel.x,pixel.t),(pixel.y,pixel.x-1,pixel.t),
+        #                 (pixel.y,pixel.x+1,pixel.t),(pixel.y,pixel.x,pixel.t-1),(pixel.y,pixel.x,pixel.t+1))
+        adjacentCoord = ((pixel.y-1,pixel.x,pixel.t),(pixel.y+1,pixel.x,pixel.t),(pixel.y,pixel.x-1,pixel.t),
+                         (pixel.y,pixel.x+1,pixel.t),(pixel.y,pixel.x,pixel.t-1),(pixel.y,pixel.x,pixel.t+1))
+        for coord in adjacentCoord:
+            if sum(np.array(coord) < 0) > 0:    # Don't check negative coordinates
+                continue
+            try:    # To deal with out of bound indices
+                if cuboid[coord]:
+                    self.unexplored.append(Pixel(coord,cuboid[coord]))
+                    cuboid[coord] = 0 # Prevent from exploring same pixel again
+            except IndexError:
+                pass
+        
+    def growRidge(self,cuboid):
+        while self.unexplored:
+            pixel = self.unexplored.pop()
+            self.checkAdjacent(pixel,cuboid)
+            self.explored.append(pixel)
+            print 'unexplored:',
+            for stuff in self.unexplored:
+                print str(stuff.getCoord()),
+            print ''
+            print 'explored:',
+            for more_stuff in self.explored:
+                print str(more_stuff.getCoord()),
+            print ''

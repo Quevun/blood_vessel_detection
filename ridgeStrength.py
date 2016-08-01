@@ -9,9 +9,8 @@ import cv2
 import numpy as np
 import hlpr
 
-def ridgeStrength():
+def ridgeStrength(scale,lump_size):
     img = cv2.imread('input/IR3/test3.bmp',cv2.IMREAD_GRAYSCALE)
-    scale = np.arange(5,256,3)
     ridge_str_cuboid = hlpr.RidgeStrCuboid(img,scale)
 
     ######################################################
@@ -45,21 +44,15 @@ def ridgeStrength():
     scale_deriv2 = ridge_str_cuboid.getScaleDeriv2()
         
     bin1 = np.around(scale_deriv) == 0
-    bin2 = scale_deriv2 < -0.3
+    bin2 = scale_deriv2 < 0
     
     ###########################################################################
     #   Lump several adjacent scales together
-    
-    lump_size = 3
+        
     lump_bin1 = hlpr.BinImgCuboid(bin1).lump(lump_size)
     lump_bin2 = hlpr.BinImgCuboid(bin2).lump(lump_size)
-    lump_bin = np.logical_and(lump_bin1,lump_bin2)
+    lump_bin = lump_bin1*lump_bin2
     
-    lump2_bin1 = hlpr.BinImgCuboid(bin1).lump2(lump_size)
-    lump2_bin2 = hlpr.BinImgCuboid(bin2).lump2(lump_size)
-    lump2_bin = lump2_bin1*lump2_bin2
-    
-    print np.array_equal(lump_bin,lump2_bin)
     ###########################################################################
         
     #bin1 = bin1.astype(np.uint8) * 255
