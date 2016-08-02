@@ -17,5 +17,5 @@ def findRidge(scale):
     for i in range(len(scale)):
         scaled_img.append(hlpr.ScaledImage(img,scale[i]))
         ridge[:,:,i] = scaled_img[i].findRidge()
-        
+    
     return ridge
