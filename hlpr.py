@@ -183,11 +183,12 @@ class Ridge(object):
     
     def __init__(self,pixel,cuboid):
         assert isinstance(pixel,Pixel)
+        self.cuboid = cuboid
         self.unexplored = [pixel]
         self.explored = []
-        cuboid[pixel.y,pixel.x,pixel.t] = 0
+        self.cuboid[pixel.y,pixel.x,pixel.t] = 0
         
-    def checkAdjacent(self,pixel,cuboid):
+    def checkAdjacent(self,pixel):#,cuboid):
         #print ((pixel.y-1,pixel.x,pixel.t),(pixel.y+1,pixel.x,pixel.t),(pixel.y,pixel.x-1,pixel.t),
         #                 (pixel.y,pixel.x+1,pixel.t),(pixel.y,pixel.x,pixel.t-1),(pixel.y,pixel.x,pixel.t+1))
         adjacentCoord = ((pixel.y-1,pixel.x,pixel.t),(pixel.y+1,pixel.x,pixel.t),(pixel.y,pixel.x-1,pixel.t),
@@ -196,17 +197,19 @@ class Ridge(object):
             if sum(np.array(coord) < 0) > 0:    # Don't check negative coordinates
                 continue
             try:    # To deal with out of bound indices
-                if cuboid[coord]:
-                    self.unexplored.append(Pixel(coord,cuboid[coord]))
-                    cuboid[coord] = 0 # Prevent from exploring same pixel again
+                if self.cuboid[coord]:
+                    self.unexplored.append(Pixel(coord,self.cuboid[coord]))
+                    self.cuboid[coord] = 0 # Prevent from exploring same pixel again
             except IndexError:
                 pass
         
-    def growRidge(self,cuboid):
+    def growRidge(self):#,cuboid):
         while self.unexplored:
             pixel = self.unexplored.pop()
-            self.checkAdjacent(pixel,cuboid)
+            self.checkAdjacent(pixel)#,cuboid)
             self.explored.append(pixel)
+            
+            """# testing purpose
             print 'unexplored:',
             for stuff in self.unexplored:
                 print str(stuff.getCoord()),
@@ -215,3 +218,4 @@ class Ridge(object):
             for more_stuff in self.explored:
                 print str(more_stuff.getCoord()),
             print ''
+            """
