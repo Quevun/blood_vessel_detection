@@ -5,27 +5,9 @@ Created on Wed Jul 27 20:32:40 2016
 @author: queky
 """
 
-import ridgeStrength
 import hlpr
-import findRidge
 import numpy as np
-import cv2
-
-scale = np.arange(5,256,1)
-lump_size = 1   #odd number
-ridge = findRidge(scale)
-ridge_str_peak = ridgeStrength(scale,lump_size)
-
-ridge2 = np.zeros(np.shape(ridge_str_peak))
-for i in range(np.size(ridge_str_peak,2)):
-    ridge2[:,:,i] = ridge[:,:,(lump_size-1)/2+i*lump_size]
-    
-bin = ridge2*ridge_str_peak
-
-for i in range(np.size(bin,2)):
-    cv2.imwrite('output/findBloodVessels_results/vessels'+str(i)+'.jpg',bin[:,:,i]*255)
-    
-    
+import cv2    
     
 def findRidge(scale):
     img = cv2.imread('input/IR3/test3.bmp',cv2.IMREAD_GRAYSCALE)
@@ -40,7 +22,7 @@ def findRidge(scale):
     
     
     
-def ridgeStrength(scale,lump_size):
+def ridgeStrength(scale):
     img = cv2.imread('input/IR3/test3.bmp',cv2.IMREAD_GRAYSCALE)
     ridge_str_cuboid = hlpr.RidgeStrCuboid(img,scale)
 
@@ -51,26 +33,24 @@ def ridgeStrength(scale,lump_size):
         
     bin1 = np.around(scale_deriv) == 0
     bin2 = scale_deriv2 < 0
-    
-    ###########################################################################
-    #   Lump several adjacent scales together
-        
-    lump_bin1 = hlpr.BinImgCuboid(bin1).lump(lump_size)
-    lump_bin2 = hlpr.BinImgCuboid(bin2).lump(lump_size)
-    lump_bin = lump_bin1*lump_bin2
-    
-    ###########################################################################
-        
-    #bin1 = bin1.astype(np.uint8) * 255
-    #bin2 = bin2.astype(np.uint8) * 255
-    #lump_bin = lump_bin.astype(np.uint8)*255
 
-    #for i in range(np.size(lump_bin,2)):
-    #    cv2.imwrite('output/ridgeStrength_results/lump_bin'+str(i)+'.jpg',lump_bin[:,:,i])
     ######################################################
 
-    return lump_bin
+    return (bin1*bin2)*ridge_str_cuboid.cuboid
     
 def connectRidgePeaks(cuboid):
-    for t in range(size(cuboid,2)):
-        for
+    ridges = []
+    it = np.nditer(cuboid, flags=['multi_index'])
+    while not it.finished:
+        if it[0] > 0:
+            pixel = hlpr.Pixel(it.multi_index,it[0])
+            ridges.append(hlpr.Ridge(pixel,cuboid))
+            ridges[-1].growRidge()
+    
+scale = np.arange(5,256,1)
+ridge = findRidge(scale)
+ridge_str_peak = ridgeStrength(scale)
+bin = ridge*ridge_str_peak
+
+#for i in range(np.size(bin,2)):
+#    cv2.imwrite('output/findBloodVessels_results/vessels'+str(i)+'.jpg',bin[:,:,i]*255)

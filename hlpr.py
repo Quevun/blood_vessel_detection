@@ -6,6 +6,7 @@ Created on Sat Jul 23 14:18:32 2016
 """
 import cv2
 import numpy as np
+import copy
 
 def getScaleSpace(img,scale):
     sigma = np.sqrt(scale)
@@ -143,25 +144,6 @@ class BinImgCuboid(object):
         self.cuboid = cuboid
         self.shape = np.shape(cuboid)
         
-    def lump2(self,lump_size):
-        self.lump_size = lump_size
-        lump_bin = np.zeros((self.shape[0],self.shape[1],self.shape[2]/lump_size))
-        for i in range(0,self.shape[2]-lump_size+1,lump_size):
-            lump_bin[:,:,i/lump_size] = self.cuboid[:,:,i]
-            for j in range(1,lump_size):
-                lump_bin[:,:,i/lump_size] += self.cuboid[:,:,i+j]
-        return lump_bin
-        
-    def lump(self,lump_size):
-        self.lump_size = lump_size
-        lump_bin = np.zeros((self.shape[0],self.shape[1],self.shape[2]/lump_size))
-        for i in range(0,self.shape[2]-lump_size+1,lump_size):
-            lump_bin[:,:,i/lump_size] = self.cuboid[:,:,i]
-            for j in range(1,lump_size):
-                lump_bin[:,:,i/lump_size] += self.cuboid[:,:,i+j]
-        lump_bin = lump_bin > 0
-        return BinImgCuboid(lump_bin)
-        
     def __mul__(self,other):
         assert other.cuboid.dtype == 'bool'
         return self.cuboid * other.cuboid
@@ -178,13 +160,19 @@ class Pixel(object):
         return self.ridge_str
         
 class Ridge(object):
+    class_cuboid = None
+    class_cuboid_mod = None
     
-    def __init__(self,pixel,cuboid):
+    @staticmethod
+    def setCuboid(cuboid):
+        Ridge.class_cuboid = cuboid
+        Ridge.class_cuboid_mod = copy.deepcopy(cuboid)
+    
+    def __init__(self,pixel):
         assert isinstance(pixel,Pixel)
-        self.cuboid = cuboid
         self.unexplored = [pixel]
         self.explored = []
-        self.cuboid[pixel.coord] = 0
+        Ridge.class_cuboid_mod[pixel.coord] = 0
         
     def checkAdjacent(self,pixel):#,cuboid):
         y = pixel.coord[0]
@@ -195,9 +183,9 @@ class Ridge(object):
             if sum(np.array(coord) < 0) > 0:    # Don't check negative coordinates
                 continue
             try:    # To deal with out of bound indices
-                if self.cuboid[coord]:
-                    self.unexplored.append(Pixel(coord,self.cuboid[coord]))
-                    self.cuboid[coord] = 0 # Prevent from exploring same pixel again
+                if Ridge.class_cuboid_mod[coord]:
+                    self.unexplored.append(Pixel(coord,Ridge.class_cuboid_mod[coord]))
+                    Ridge.class_cuboid_mod[coord] = 0 # Prevent from exploring same pixel again
             except IndexError:
                 pass
         
