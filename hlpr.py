@@ -168,13 +168,11 @@ class BinImgCuboid(object):
         
 class Pixel(object):
     def __init__(self,coord,ridge_str):
-        self.y = coord[0]
-        self.x = coord[1]
-        self.t = coord[2]
+        self.coord = coord
         self.ridge_str = ridge_str
         
     def getCoord(self):
-        return (self.y,self.x,self.t)
+        return (self.coord[0],self.coord[1],self.coord[2])
         
     def getRidgeStr(self):
         return self.ridge_str
@@ -186,13 +184,13 @@ class Ridge(object):
         self.cuboid = cuboid
         self.unexplored = [pixel]
         self.explored = []
-        self.cuboid[pixel.y,pixel.x,pixel.t] = 0
+        self.cuboid[pixel.coord] = 0
         
     def checkAdjacent(self,pixel):#,cuboid):
-        #print ((pixel.y-1,pixel.x,pixel.t),(pixel.y+1,pixel.x,pixel.t),(pixel.y,pixel.x-1,pixel.t),
-        #                 (pixel.y,pixel.x+1,pixel.t),(pixel.y,pixel.x,pixel.t-1),(pixel.y,pixel.x,pixel.t+1))
-        adjacentCoord = ((pixel.y-1,pixel.x,pixel.t),(pixel.y+1,pixel.x,pixel.t),(pixel.y,pixel.x-1,pixel.t),
-                         (pixel.y,pixel.x+1,pixel.t),(pixel.y,pixel.x,pixel.t-1),(pixel.y,pixel.x,pixel.t+1))
+        y = pixel.coord[0]
+        x = pixel.coord[1]
+        t = pixel.coord[2]
+        adjacentCoord = ((y-1,x,t),(y+1,x,t),(y,x-1,t),(y,x+1,t),(y,x,t-1),(y,x,t+1))
         for coord in adjacentCoord:
             if sum(np.array(coord) < 0) > 0:    # Don't check negative coordinates
                 continue
@@ -209,7 +207,7 @@ class Ridge(object):
             self.checkAdjacent(pixel)#,cuboid)
             self.explored.append(pixel)
             
-            """# testing purpose
+            """# display list of explored and unexplored for testing purposes
             print 'unexplored:',
             for stuff in self.unexplored:
                 print str(stuff.getCoord()),
