@@ -13,4 +13,4 @@ cuboid2 = np.array([[[1,1,1],[1,0,1],[0,1,1]],[[1,1,1],[1,0,1],[0,0,1]],[[0,0,0]
 pixel = hlpr.Pixel((2,1,0),1)
 hlpr.Ridge.setCuboid(cuboid2)
 ridge = hlpr.Ridge(pixel)
-ridge.growRidge()
+explored = ridge.growRidge()

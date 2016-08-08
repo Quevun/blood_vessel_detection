@@ -40,17 +40,21 @@ def ridgeStrength(scale):
     
 def connectRidgePeaks(cuboid):
     ridges = []
+    hlpr.Ridge.setCuboid(cuboid)
     it = np.nditer(cuboid, flags=['multi_index'])
     while not it.finished:
-        if it[0] > 0:
+        if hlpr.Ridge.getCuboid()[it.multi_index] > 0:
             pixel = hlpr.Pixel(it.multi_index,it[0])
-            ridges.append(hlpr.Ridge(pixel,cuboid))
+            ridges.append(hlpr.Ridge(pixel))
             ridges[-1].growRidge()
+        it.iternext()
+        
+    return ridges
     
-scale = np.arange(5,256,1)
+scale = np.arange(50,100,1)
 ridge = findRidge(scale)
 ridge_str_peak = ridgeStrength(scale)
 bin = ridge*ridge_str_peak
-
+ridges = connectRidgePeaks(bin)
 #for i in range(np.size(bin,2)):
 #    cv2.imwrite('output/findBloodVessels_results/vessels'+str(i)+'.jpg',bin[:,:,i]*255)

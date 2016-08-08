@@ -160,21 +160,25 @@ class Pixel(object):
         return self.ridge_str
         
 class Ridge(object):
-    class_cuboid = None
+    #class_cuboid = None
     class_cuboid_mod = None
     
     @staticmethod
     def setCuboid(cuboid):
-        Ridge.class_cuboid = cuboid
+        #Ridge.class_cuboid = cuboid
         Ridge.class_cuboid_mod = copy.deepcopy(cuboid)
+        
+    @staticmethod
+    def getCuboid():
+        return Ridge.class_cuboid_mod
     
     def __init__(self,pixel):
         assert isinstance(pixel,Pixel)
         self.unexplored = [pixel]
-        self.explored = []
+        self.explored = {}
         Ridge.class_cuboid_mod[pixel.coord] = 0
         
-    def checkAdjacent(self,pixel):#,cuboid):
+    def checkAdjacent(self,pixel):
         y = pixel.coord[0]
         x = pixel.coord[1]
         t = pixel.coord[2]
@@ -189,11 +193,18 @@ class Ridge(object):
             except IndexError:
                 pass
         
-    def growRidge(self):#,cuboid):
+    def growRidge(self):
         while self.unexplored:
             pixel = self.unexplored.pop()
-            self.checkAdjacent(pixel)#,cuboid)
-            self.explored.append(pixel)
+            self.checkAdjacent(pixel)
+            
+            xy_coord = pixel.getCoord()[:2]
+            if not xy_coord in self.explored:    # x,y coordinates as keys, list of pixels as values
+                self.explored[xy_coord] = [pixel]
+            else:
+                self.explored[xy_coord].append(pixel)
+            
+            #self.explored.append(pixel)
             
             """# display list of explored and unexplored for testing purposes
             print 'unexplored:',
@@ -205,3 +216,9 @@ class Ridge(object):
                 print str(more_stuff.getCoord()),
             print ''
             """
+            
+    def getImg(self):
+        img = np.zeros((np.size(Ridge.class_cuboid_mod,0),np.size(Ridge.class_cuboid_mod,1)))
+        for coord in self.explored:
+            img[coord] = 255
+        return img.astype(np.uint8)
