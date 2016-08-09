@@ -101,7 +101,7 @@ class ScaledImage(object):
         Lqq = cos_beta**2*Lxx + 2*sin_beta*cos_beta*Lxy + sin_beta**2*Lyy
         
         bin1 = Lq.astype(np.int32) == 0
-        bin2 = (Lqq >= 0.05)*(Lqq<1)
+        bin2 = Lqq >= 0.05
         bin3 = abs(Lqq) >= abs(Lpp)
         bin4 = np.logical_and(bin3,np.logical_and(bin1,bin2))
         

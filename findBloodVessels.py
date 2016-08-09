@@ -10,22 +10,20 @@ import numpy as np
 import cv2  
 import heapq  
     
-def findRidge(scale):
-    img = cv2.imread('input/IR3/test3.bmp',cv2.IMREAD_GRAYSCALE)
+def findRidge(scale,img):
     scaled_img = []
     ridge = np.zeros((np.size(img,0),np.size(img,1),len(scale)))
     
     for i in range(len(scale)):
         scaled_img.append(hlpr.ScaledImage(img,scale[i]))
         ridge[:,:,i] = scaled_img[i].findRidge()
-        cv2.imwrite('output/findRidge_results/exclude)
+        #cv2.imwrite('output/findRidge_results/exclude)
     
     return ridge
     
     
     
-def ridgeStrength(scale):
-    img = cv2.imread('input/IR3/test3.bmp',cv2.IMREAD_GRAYSCALE)
+def ridgeStrength(scale,img):
     ridge_str_cuboid = hlpr.RidgeStrCuboid(img,scale)
 
     ######################################################
@@ -64,19 +62,28 @@ def nStrongestRidges(n,ridges):
         strongest.append(ridges[index])
     return strongest
         
-    
-scale = np.arange(20,150,1)
-#ridge_cuboid = findRidge(scale)
-ridge_str_peak = ridgeStrength(scale)
-"""
+img = cv2.imread('input/IR3/test3.bmp',cv2.IMREAD_GRAYSCALE)
+img = cv2.pyrDown(img)
+
+scale = np.arange(1,150,1)
+ridge_cuboid = findRidge(scale,img)
+ridge_str_peak = ridgeStrength(scale,img)
+
 bin = ridge_cuboid*ridge_str_peak
 ridges = connectRidgePeaks(bin)
-strongest = nStrongestRidges(50,ridges)
+strongest = nStrongestRidges(100,ridges)
 
 i = 0
+"""
 for ridge in strongest:
     cv2.imwrite('output/strongest_results/strongest'+str(i)+'.jpg',ridge.getImg())
     i += 1
 """
+combined = np.zeros(np.shape(img))
+for ridge in strongest:
+    combined += ridge.getImg()
+combined = combined > 0
+combined = combined.astype(np.uint8)*255
+cv2.imwrite('combined.jpg',combined)
 #for i in range(np.size(bin,2)):
 #    cv2.imwrite('output/findBloodVessels_results/vessels'+str(i)+'.jpg',bin[:,:,i]*255)
