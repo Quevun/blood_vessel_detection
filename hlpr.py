@@ -101,10 +101,10 @@ class ScaledImage(object):
         Lqq = cos_beta**2*Lxx + 2*sin_beta*cos_beta*Lxy + sin_beta**2*Lyy
         
         bin1 = Lq.astype(np.int32) == 0
-        bin2 = Lqq >= 0.05
+        bin2 = (Lqq >= 0.05)*(Lqq<1)
         bin3 = abs(Lqq) >= abs(Lpp)
         bin4 = np.logical_and(bin3,np.logical_and(bin1,bin2))
-        #ridge = self.getImg() * bin4
+        
         return bin4
             
     def getRidgeStrength(self):
@@ -200,9 +200,10 @@ class Ridge(object):
             
             xy_coord = pixel.getCoord()[:2]
             if not xy_coord in self.explored:    # x,y coordinates as keys, list of pixels as values
-                self.explored[xy_coord] = [pixel]
+                self.explored[xy_coord] = pixel
             else:
-                self.explored[xy_coord].append(pixel)
+                if pixel.getRidgeStr() > self.explored[xy_coord].getRidgeStr():
+                    self.explored[xy_coord] = pixel # replace pixel only if ridge strength is higher
             
             #self.explored.append(pixel)
             
@@ -216,6 +217,12 @@ class Ridge(object):
                 print str(more_stuff.getCoord()),
             print ''
             """
+            
+    def getTotalRidgeStr(self): # Calculate total ridge strength
+        total_ridge_str = 0
+        for xy_coord in self.explored:
+            total_ridge_str += self.explored[xy_coord].getRidgeStr()
+        return total_ridge_str
             
     def getImg(self):
         img = np.zeros((np.size(Ridge.class_cuboid_mod,0),np.size(Ridge.class_cuboid_mod,1)))
