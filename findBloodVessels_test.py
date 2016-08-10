@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Wed Aug 10 14:49:37 2016
+
+@author: keisoku
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Wed Jul 27 20:32:40 2016
 
 @author: queky
@@ -10,6 +17,7 @@ import numpy as np
 import cv2  
 import heapq  
 import anaFunc
+import test
     
 def findRidge(scale,img):
     scaled_img = []
@@ -19,7 +27,6 @@ def findRidge(scale,img):
         scaled_img.append(hlpr.ScaledImage(img,scale[i]))
         ridge[:,:,i] = scaled_img[i].findRidge()
         cv2.imwrite('output/findRidge_results/marker'+str(i)+'.jpg',ridge[:,:,i].astype(np.uint8)*255)
-    
     return ridge
     
 def ridgeStrength(scale,img):
@@ -30,11 +37,22 @@ def ridgeStrength(scale,img):
     scale_deriv = ridge_str_cuboid.getScaleDeriv()
     scale_deriv2 = ridge_str_cuboid.getScaleDeriv2()
         
-    bin1 = np.around(scale_deriv) == 0
+    #bin1 = np.around(scale_deriv) == 0
+    scale_deriv = test.normAxis2(scale_deriv)
+    bin1 = abs(scale_deriv) < 0.01
+    #bin1 = np.ones(np.shape(ridge_str_cuboid))  # testing purpose
     bin2 = scale_deriv2 < 0
     bin3 = (bin1*bin2)*ridge_str_cuboid.cuboid
     ######################################################
-
+    bin1 = bin1.astype(np.uint8)*255
+    bin2 = bin2.astype(np.uint8)*255
+    bin4 = (bin3 > 0).astype(np.uint8)*255
+    #anaFunc.plotRidgeStrAlongScale(scale_deriv[:,:,2:-4],[(334,230),(293,291),(511,254),(394,350)])
+    #ridge_str_cuboid = (ridge_str_cuboid.cuboid/np.amax(ridge_str_cuboid.cuboid)*255).astype(np.uint8)
+    for i in range(len(scale)):
+        #cv2.imwrite('output/ridgeStrength_results/bin_one'+str(i)+'.jpg',bin1[:,:,i])
+        #cv2.imwrite('output/ridgeStrength_results/bin_two'+str(i)+'.jpg',bin2[:,:,i])
+        cv2.imwrite('output/ridgeStrength_results/marker'+str(i)+'.jpg',bin4[:,:,i])
     return bin3
     
 def connectRidgePeaks(cuboid):
@@ -62,15 +80,22 @@ def nStrongestRidges(n,ridges):
     return strongest
         
 img = cv2.imread('input/marker.bmp',cv2.IMREAD_GRAYSCALE)
+#img = cv2.pyrDown(img)
 
-scale = np.arange(1,30,1)
+scale = np.arange(1,100,1)
 ridge_cuboid = findRidge(scale,img)
-ridge_str_peak = ridgeStrength(scale,img)
+#ridge_str_peak = ridgeStrength(scale,img)
 
-bin = ridge_cuboid*ridge_str_peak
-
+#bin = ridge_cuboid*ridge_str_peak
+#for i in range(np.size(bin,2)):
+#    cv2.imwrite('output/findBloodVessels_results/marker'+str(i)+'.jpg',bin[:,:,i]*255)
+"""
 ridges = connectRidgePeaks(bin)
 strongest = nStrongestRidges(100,ridges)
+#i = 0
+#for ridge in strongest:
+#    cv2.imwrite('output/strongest_results/strongest'+str(i)+'.jpg',ridge.getImg())
+#    i += 1
 
 combined = np.zeros(np.shape(img))
 for ridge in strongest:
@@ -78,3 +103,4 @@ for ridge in strongest:
 combined = combined > 0
 combined = combined.astype(np.uint8)*255
 cv2.imwrite('combined.jpg',combined)
+"""

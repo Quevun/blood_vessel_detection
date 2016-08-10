@@ -7,6 +7,7 @@ Created on Sat Jul 23 14:18:32 2016
 import cv2
 import numpy as np
 import copy
+import test
 
 def getScaleSpace(img,scale):
     sigma = np.sqrt(scale)
@@ -100,7 +101,8 @@ class ScaledImage(object):
         Lpp = sin_beta**2*Lxx - 2*sin_beta*cos_beta*Lxy - cos_beta**2*Lyy
         Lqq = cos_beta**2*Lxx + 2*sin_beta*cos_beta*Lxy + sin_beta**2*Lyy
         
-        bin1 = Lq.astype(np.int32) == 0
+        #bin1 = Lq.astype(np.int32) == 0
+        bin1 = abs(Lq/np.amax(abs(Lq))) < 0.1 ##!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         bin2 = Lqq >= 0.05
         bin3 = abs(Lqq) >= abs(Lpp)
         bin4 = np.logical_and(bin3,np.logical_and(bin1,bin2))
