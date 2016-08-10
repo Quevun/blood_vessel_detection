@@ -10,6 +10,7 @@ import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 import hlpr
 
+"""
 def plotImg(img):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -23,3 +24,23 @@ img = cv2.imread('input/test.bmp',cv2.IMREAD_GRAYSCALE)
 img = cv2.pyrDown(img)
 img = hlpr.getScaledImg(img,225)
 plotImg(img)
+"""
+
+"""
+def getCoord(event,x,y,flags,param):
+    if event == cv2.EVENT_LBUTTONDOWN:
+        print (x,y)
+        
+img = cv2.imread('input/marker.bmp',cv2.IMREAD_GRAYSCALE)
+cv2.namedWindow("image")
+cv2.setMouseCallback("image", getCoord)
+cv2.imshow('image',img)
+cv2.waitKey()
+cv2.destroyAllWindows()
+"""
+
+def plotRidgeStrAlongScale(cuboid,coords):
+    for coord in coords:
+        y = cuboid[coord[1],coord[0],:]
+        plt.plot(y)
+        
