@@ -26,12 +26,23 @@ def getScaledImg(img,scale):
     return scaled_img
 
 def float2uint(sobelx):
-    import numpy as np
     sobelx = sobelx - np.amin(sobelx,(0,1))
     sobelx = sobelx / np.amax(sobelx,(0,1))
     sobelx =  sobelx * 255
     sobelx = sobelx.astype(np.uint8)
     return sobelx
+    
+def axis2Diff(cuboid):
+    diff = np.zeros((np.size(cuboid,0),np.size(cuboid,1),np.size(cuboid,2)-1))
+    for i in range(np.size(cuboid,2)-1):
+        diff[:,:,i] = cuboid[:,:,i+1]-cuboid[:,:,i]
+    return diff
+    
+def scaleDerivZero(scale_deriv):  # Approximate coordinates with zero crossing
+    positive = scale_deriv > 0
+    diff = axis2Diff(positive.astype(np.int8))  # Coordinates with transition from positive to negative will have -1
+    diff = (diff == -1)
+    return diff  # returns cuboid with True at zero crossing coordinates, size of 2nd axis is one less than scale_deriv
     
 class ScaledImage(object):
     def __init__(self,img,scale):
@@ -101,8 +112,8 @@ class ScaledImage(object):
         Lpp = sin_beta**2*Lxx - 2*sin_beta*cos_beta*Lxy - cos_beta**2*Lyy
         Lqq = cos_beta**2*Lxx + 2*sin_beta*cos_beta*Lxy + sin_beta**2*Lyy
         
-        #bin1 = Lq.astype(np.int32) == 0
-        bin1 = abs(Lq/np.amax(abs(Lq))) < 0.1 ##!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        bin1 = Lq.astype(np.int32) == 0
+        #bin1 = abs(Lq/np.amax(abs(Lq))) < 0.1 ##!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         bin2 = Lqq >= 0.05
         bin3 = abs(Lqq) >= abs(Lpp)
         bin4 = np.logical_and(bin3,np.logical_and(bin1,bin2))

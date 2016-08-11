@@ -23,4 +23,3 @@ hlpr.Ridge.setCuboid(cuboid2)
 ridge = hlpr.Ridge(pixel)
 explored = ridge.growRidge()
 """
-

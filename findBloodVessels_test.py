@@ -38,22 +38,22 @@ def ridgeStrength(scale,img):
     scale_deriv2 = ridge_str_cuboid.getScaleDeriv2()
         
     #bin1 = np.around(scale_deriv) == 0
-    scale_deriv = test.normAxis2(scale_deriv)
-    bin1 = abs(scale_deriv) < 0.01
+    bin1 = hlpr.scaleDerivZero(scale_deriv)
     #bin1 = np.ones(np.shape(ridge_str_cuboid))  # testing purpose
     bin2 = scale_deriv2 < 0
-    bin3 = (bin1*bin2)*ridge_str_cuboid.cuboid
+    bin3 = (bin1*bin2[:,:,:-1])*ridge_str_cuboid.cuboid[:,:,:-1]
     ######################################################
     bin1 = bin1.astype(np.uint8)*255
     bin2 = bin2.astype(np.uint8)*255
     bin4 = (bin3 > 0).astype(np.uint8)*255
     #anaFunc.plotRidgeStrAlongScale(scale_deriv[:,:,2:-4],[(334,230),(293,291),(511,254),(394,350)])
     #ridge_str_cuboid = (ridge_str_cuboid.cuboid/np.amax(ridge_str_cuboid.cuboid)*255).astype(np.uint8)
-    for i in range(len(scale)):
-        #cv2.imwrite('output/ridgeStrength_results/bin_one'+str(i)+'.jpg',bin1[:,:,i])
+    #for i in range(len(scale)-1):
+    #    cv2.imwrite('output/ridgeStrength_results/bin_one'+str(i)+'.jpg',bin1[:,:,i])
+    #for i in range(len(scale)-1):
         #cv2.imwrite('output/ridgeStrength_results/bin_two'+str(i)+'.jpg',bin2[:,:,i])
-        cv2.imwrite('output/ridgeStrength_results/marker'+str(i)+'.jpg',bin4[:,:,i])
-    return bin3
+    #    cv2.imwrite('output/ridgeStrength_results/marker'+str(i)+'.jpg',bin4[:,:,i])
+    return bin4
     
 def connectRidgePeaks(cuboid):
     ridges = []
@@ -82,7 +82,7 @@ def nStrongestRidges(n,ridges):
 img = cv2.imread('input/marker.bmp',cv2.IMREAD_GRAYSCALE)
 #img = cv2.pyrDown(img)
 
-scale = np.arange(1,100,1)
+scale = np.arange(1,30,1)
 ridge_cuboid = findRidge(scale,img)
 #ridge_str_peak = ridgeStrength(scale,img)
 
