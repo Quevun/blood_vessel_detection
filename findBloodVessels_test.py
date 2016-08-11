@@ -26,7 +26,7 @@ def findRidge(scale,img):
     for i in range(len(scale)):
         scaled_img.append(hlpr.ScaledImage(img,scale[i]))
         ridge[:,:,i] = scaled_img[i].findRidge()
-        cv2.imwrite('output/findRidge_results/marker'+str(i)+'.jpg',ridge[:,:,i].astype(np.uint8)*255)
+        #cv2.imwrite('output/findRidge_results/bin_one'+str(i)+'.jpg',ridge[:,:,i].astype(np.uint8)*255)
     return ridge
     
 def ridgeStrength(scale,img):

@@ -95,6 +95,11 @@ class ScaledImage(object):
         else:
             return self.sobelxy
             
+    def dirDerivZeroCross(self,beta):        
+        L_R = (beta >= 0)*(beta < np.pi/6)
+        upR_downL = (beta >= np.pi/6)*(beta < np.pi/3)
+        up_down = (beta >= np.pi/3)*(beta < np.pi/2)
+    
     def findRidge(self):
         Lx = self.getSobelx()
         Ly = self.getSobely()
@@ -105,6 +110,8 @@ class ScaledImage(object):
         temp = (Lxx - Lyy)/np.sqrt((Lxx-Lyy)**2 + 4*Lxy**2)
         sin_beta = np.sign(Lxy) * np.sqrt((1-temp)/2)
         cos_beta = np.sqrt((1+temp)/2)
+        beta = np.arccos(cos_beta)
+        beta2 = np.arcsin(sin_beta)
         
         Lp = sin_beta * Lx - cos_beta * Ly  # first derivatives of principal directions
         Lq = cos_beta * Lx + sin_beta * Ly  # first derivatives of principal directions
@@ -117,9 +124,9 @@ class ScaledImage(object):
         bin2 = Lqq >= 0.05
         bin3 = abs(Lqq) >= abs(Lpp)
         bin4 = np.logical_and(bin3,np.logical_and(bin1,bin2))
-        
-        return bin4
-            
+
+        return beta2
+
     def getRidgeStrength(self):
         scale = self.getScale()
         sobelxx = self.getSobelxx()
