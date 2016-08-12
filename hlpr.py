@@ -44,6 +44,17 @@ def scaleDerivZero(scale_deriv):  # Approximate coordinates with zero crossing
     diff = (diff == -1)
     return diff  # returns cuboid with True at zero crossing coordinates, size of 2nd axis is one less than scale_deriv
     
+def zeroCross(img):
+    negative = img < 0
+    kernel = np.array([[0,1,0],[1,0,1],[0,1,0]])
+    convolved = cv2.filter2D(negative.astype(np.int16),-1,kernel)
+    # When anchor is positive
+    temp = convolved * (np.invert(negative))
+    zero_cross1 = temp > 0
+    # When anchor is negative
+    zero_cross2 = negative * (convolved == 0)
+    return zero_cross1+zero_cross2
+    
 class ScaledImage(object):
     def __init__(self,img,scale):
         self.scale = scale
@@ -121,9 +132,9 @@ class ScaledImage(object):
             Lpp = sin_beta**2*Lxx - 2*sin_beta*cos_beta*Lxy - cos_beta**2*Lyy
             Lqq = cos_beta**2*Lxx + 2*sin_beta*cos_beta*Lxy + sin_beta**2*Lyy
             
-            bin1 = Lq.astype(np.int32) == 0
-            #bin1 = abs(Lq/np.amax(abs(Lq))) < 0.1 ##!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            bin2 = Lqq >= 0.05
+            #bin1 = Lq.astype(np.int32) == 0
+            bin1 = zeroCross(Lq)
+            bin2 = Lqq >= 0
             bin3 = abs(Lqq) >= abs(Lpp)
             bin4 = np.logical_and(bin3,np.logical_and(bin1,bin2))
     
@@ -132,7 +143,7 @@ class ScaledImage(object):
         temp = np.sqrt(Lx**2 + Ly**2)
         cos_alpha = Lx/temp
         sin_alpha = Ly/temp
-        alpha = np.arcsin(sin_alpha)
+        #alpha = np.arcsin(sin_alpha)
         
         Lu = sin_alpha * Lx - cos_alpha * Ly
         Lv = cos_alpha * Lx + sin_alpha * Ly
@@ -142,17 +153,17 @@ class ScaledImage(object):
         Luv = (Lx*Ly*(Lxx-Lyy)-(Lx**2-Ly**2)*Lxy)/Lv**2
         Lvv = (Lx**2*Lxx+2*Lx*Ly*Lxy+Ly**2*Lyy)/Lv**2        
         
-        bin1 = Luv == 0
+        bin1 = zeroCross(Luv)
         bin2 = (Luu**2 - Lvv**2) >=0
         
-        return Luv
+        return bin1*bin2
 
     def getRidgeStrength(self):
         scale = self.getScale()
         sobelxx = self.getSobelxx()
         sobelyy = self.getSobelyy()
         sobelxy = self.getSobelxy()
-        return scale**3 * (sobelxx + sobelyy)**2 * ((sobelxx - sobelyy)**2 + 4 * sobelxy**2)
+        return scale**3*(sobelxx+sobelyy)**2*((sobelxx-sobelyy)**2+4*sobelxy**2)
 
 class RidgeStrCuboid(object):
     def __init__(self,img,scale):

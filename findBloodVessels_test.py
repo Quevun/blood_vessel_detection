@@ -4,14 +4,6 @@ Created on Wed Aug 10 14:49:37 2016
 
 @author: keisoku
 """
-
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jul 27 20:32:40 2016
-
-@author: queky
-"""
-
 import hlpr
 import numpy as np
 import cv2  
@@ -25,8 +17,8 @@ def findRidge(scale,img):
     
     for i in range(len(scale)):
         scaled_img.append(hlpr.ScaledImage(img,scale[i]))
-        ridge[:,:,i] = scaled_img[i].findRidge()
-        #cv2.imwrite('output/findRidge_results/bin_one'+str(i)+'.jpg',ridge[:,:,i].astype(np.uint8)*255)
+        ridge[:,:,i] = scaled_img[i].findRidge('curvature')
+        cv2.imwrite('output/findRidge_results/test'+str(i)+'.jpg',ridge[:,:,i].astype(np.uint8)*255)
     return ridge
     
 def ridgeStrength(scale,img):
@@ -36,7 +28,7 @@ def ridgeStrength(scale,img):
     # Scale space derivatives
     scale_deriv = ridge_str_cuboid.getScaleDeriv()
     scale_deriv2 = ridge_str_cuboid.getScaleDeriv2()
-        
+    
     #bin1 = np.around(scale_deriv) == 0
     bin1 = hlpr.scaleDerivZero(scale_deriv)
     #bin1 = np.ones(np.shape(ridge_str_cuboid))  # testing purpose
@@ -79,10 +71,10 @@ def nStrongestRidges(n,ridges):
         strongest.append(ridges[index])
     return strongest
         
-img = cv2.imread('input/marker.bmp',cv2.IMREAD_GRAYSCALE)
+img = cv2.imread('input/IR3/test3.bmp',cv2.IMREAD_GRAYSCALE)
 #img = cv2.pyrDown(img)
 
-scale = np.arange(1,30,1)
+scale = np.arange(1,100,1)
 ridge_cuboid = findRidge(scale,img)
 #ridge_str_peak = ridgeStrength(scale,img)
 
