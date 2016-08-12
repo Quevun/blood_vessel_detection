@@ -95,37 +95,57 @@ class ScaledImage(object):
         else:
             return self.sobelxy
             
-    def dirDerivZeroCross(self,beta):        
-        L_R = (beta >= 0)*(beta < np.pi/6)
+    def dirDerivZeroCross(self,angle):        
+        L_R = (angle >= 0)*(angle < np.pi/6)
         upR_downL = (beta >= np.pi/6)*(beta < np.pi/3)
         up_down = (beta >= np.pi/3)*(beta < np.pi/2)
     
-    def findRidge(self):
+    def findRidge(self,method='gradient'):
         Lx = self.getSobelx()
         Ly = self.getSobely()
         Lxy = self.getSobelxy()
         Lxx = self.getSobelxx()
         Lyy = self.getSobelyy()
         
-        temp = (Lxx - Lyy)/np.sqrt((Lxx-Lyy)**2 + 4*Lxy**2)
-        sin_beta = np.sign(Lxy) * np.sqrt((1-temp)/2)
-        cos_beta = np.sqrt((1+temp)/2)
-        beta = np.arccos(cos_beta)
-        beta2 = np.arcsin(sin_beta)
+        if method == 'curvature':
+            
+            temp = (Lxx - Lyy)/np.sqrt((Lxx-Lyy)**2 + 4*Lxy**2)
+            sin_beta = np.sign(Lxy) * np.sqrt((1-temp)/2)
+            cos_beta = np.sqrt((1+temp)/2)
+            #beta = np.arccos(cos_beta)
+            #beta2 = np.arcsin(sin_beta)
+            
+            #Lp = sin_beta * Lx - cos_beta * Ly  # first derivatives of principal directions
+            Lq = cos_beta * Lx + sin_beta * Ly  # first derivatives of principal directions
+            
+            Lpp = sin_beta**2*Lxx - 2*sin_beta*cos_beta*Lxy - cos_beta**2*Lyy
+            Lqq = cos_beta**2*Lxx + 2*sin_beta*cos_beta*Lxy + sin_beta**2*Lyy
+            
+            bin1 = Lq.astype(np.int32) == 0
+            #bin1 = abs(Lq/np.amax(abs(Lq))) < 0.1 ##!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            bin2 = Lqq >= 0.05
+            bin3 = abs(Lqq) >= abs(Lpp)
+            bin4 = np.logical_and(bin3,np.logical_and(bin1,bin2))
+    
+            return bin4
+            
+        temp = np.sqrt(Lx**2 + Ly**2)
+        cos_alpha = Lx/temp
+        sin_alpha = Ly/temp
+        alpha = np.arcsin(sin_alpha)
         
-        Lp = sin_beta * Lx - cos_beta * Ly  # first derivatives of principal directions
-        Lq = cos_beta * Lx + sin_beta * Ly  # first derivatives of principal directions
+        Lu = sin_alpha * Lx - cos_alpha * Ly
+        Lv = cos_alpha * Lx + sin_alpha * Ly
+        #Luu = sin_alpha**2*Lxx - 2*sin_alpha*cos_alpha*Lxy - cos_alpha**2*Lyy
+        #Lvv = cos_alpha**2*Lxx + 2*sin_alpha*cos_alpha*Lxy + sin_alpha**2*Lyy
+        Luu = (Lx**2*Lyy-2*Lx*Ly*Lxy+Ly**2*Lxx)/Lv**2
+        Luv = (Lx*Ly*(Lxx-Lyy)-(Lx**2-Ly**2)*Lxy)/Lv**2
+        Lvv = (Lx**2*Lxx+2*Lx*Ly*Lxy+Ly**2*Lyy)/Lv**2        
         
-        Lpp = sin_beta**2*Lxx - 2*sin_beta*cos_beta*Lxy - cos_beta**2*Lyy
-        Lqq = cos_beta**2*Lxx + 2*sin_beta*cos_beta*Lxy + sin_beta**2*Lyy
+        bin1 = Luv == 0
+        bin2 = (Luu**2 - Lvv**2) >=0
         
-        bin1 = Lq.astype(np.int32) == 0
-        #bin1 = abs(Lq/np.amax(abs(Lq))) < 0.1 ##!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        bin2 = Lqq >= 0.05
-        bin3 = abs(Lqq) >= abs(Lpp)
-        bin4 = np.logical_and(bin3,np.logical_and(bin1,bin2))
-
-        return beta2
+        return Luv
 
     def getRidgeStrength(self):
         scale = self.getScale()
