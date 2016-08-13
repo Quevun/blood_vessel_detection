@@ -106,22 +106,53 @@ class ScaledImage(object):
         else:
             return self.sobelxy
             
-    def derivX(self):
-        derivX = np.zeros(np.shape(self.img))
-        for i in range(np.size(self.img),1):
-            derivX[:,i] = self.img[:,i+1] - self.img[:,i-1]
-            
-    def dirDerivZeroCross(self,angle):        
-        L_R = (angle >= 0)*(angle < np.pi/6)
-        upR_downL = (beta >= np.pi/6)*(beta < np.pi/3)
-        up_down = (beta >= np.pi/3)*(beta < np.pi/2)
+    def getDerivX(self):   # Might want to implement these at the cuboid level for efficiency
+        self.derivX = np.zeros(np.shape(self.img))
+        for i in range(np.size(self.img,1)):
+            self.derivX[:,i] = self.img[:,(i+1)%np.size(self.img,1)] - self.img[:,i-1]
+        return self.derivX
+        
+    def getDerivY(self):
+        self.derivY = np.zeros(np.shape(self.img))
+        for i in range(np.size(self.img,0)):
+            self.derivY[i,:] = self.img[(i+1)%np.size(self.img,0),:] - self.img[i-1,:]
+        return self.derivY
+        
+    def getDerivXX(self):
+        self.derivXX = np.zeros(np.shape(self.img))
+        for i in range(np.size(self.img,1)):
+            self.derivXX[:,i]=self.derivX[:,(i+1)%np.size(self.img,1)]-self.derivX[:,i-1]
+        return self.derivXX
+        
+    def getDerivYY(self):
+        self.derivYY = np.zeros(np.shape(self.img))
+        for i in range(np.size(self.img,0)):
+            self.derivYY[i,:]=self.derivY[(i+1)%np.size(self.img,0),:]-self.derivY[i-1,:]
+        return self.derivYY
+        
+    def getDerivXY(self):
+        self.derivXY = np.zeros(np.shape(self.img))
+        for i in range(np.size(self.img,0)):
+            self.derivXY[i,:]=self.derivX[(i+1)%np.size(self.img,0),:]-self.derivX[i-1,:]
+        return self.derivXY
+        
+    #def dirDerivZeroCross(self,angle):        
+    #    L_R = (angle >= 0)*(angle < np.pi/6)
+    #    upR_downL = (beta >= np.pi/6)*(beta < np.pi/3)
+    #    up_down = (beta >= np.pi/3)*(beta < np.pi/2)
     
     def findRidge(self,method='gradient'):
-        Lx = self.getSobelx()
-        Ly = self.getSobely()
-        Lxy = self.getSobelxy()
-        Lxx = self.getSobelxx()
-        Lyy = self.getSobelyy()
+        #Lx = self.getSobelx()
+        #Ly = self.getSobely()
+        #Lxy = self.getSobelxy()
+        #Lxx = self.getSobelxx()
+        #Lyy = self.getSobelyy()
+    
+        Lx = self.getDerivX()
+        Ly = self.getDerivY()
+        Lxx = self.getDerivXX()
+        Lyy = self.getDerivYY()
+        Lxy = self.getDerivXY()
         
         if method == 'curvature':
             
@@ -165,10 +196,18 @@ class ScaledImage(object):
 
     def getRidgeStrength(self):
         scale = self.getScale()
-        sobelxx = self.getSobelxx()
-        sobelyy = self.getSobelyy()
-        sobelxy = self.getSobelxy()
-        return scale**3*(sobelxx+sobelyy)**2*((sobelxx-sobelyy)**2+4*sobelxy**2)
+        #Lx = self.getSobelx()
+        #Ly = self.getSobely()
+        #Lxy = self.getSobelxy()
+        #Lxx = self.getSobelxx()
+        #Lyy = self.getSobelyy()
+        
+        Lx = self.getDerivX()
+        Ly = self.getDerivY()
+        Lxx = self.getDerivXX()
+        Lyy = self.getDerivYY()
+        Lxy = self.getDerivXY() 
+        return scale**3*(Lxx+Lyy)**2*((Lxx-Lyy)**2+4*Lxy**2)
 
 class RidgeStrCuboid(object):
     def __init__(self,img,scale):
@@ -178,14 +217,14 @@ class RidgeStrCuboid(object):
             self.cuboid[:,:,i] = ScaledImage(img,scale[i]).getRidgeStrength()
             
     def getScaleDeriv(self):
-        max_i = self.shape[2]-1
+        max_i = self.shape[2]
         self.scale_deriv = np.zeros(self.shape)
         for i in range(self.shape[2]):
-            self.scale_deriv[:,:,i] = self.cuboid[:,:,(i+1)%max_i]-self.cuboid[:,:,i-1]
+            self.scale_deriv[:,:,i]=self.cuboid[:,:,(i+1)%max_i]-self.cuboid[:,:,i-1]
         return self.scale_deriv
         
     def getScaleDeriv2(self):
-        max_i = self.shape[2] - 1
+        max_i = self.shape[2]
         self.scale_deriv2 = np.zeros(self.shape)
         if not hasattr(self,'scale_deriv'):
             print "First order scale derivative doesn't exist, creating one..."

@@ -30,7 +30,7 @@ plotImg(img)
 def getCoord(event,x,y,flags,param):
     if event == cv2.EVENT_LBUTTONDOWN:
         print (x,y)
-"""        
+"""       
 img = cv2.imread('input/marker.bmp',cv2.IMREAD_GRAYSCALE)
 cv2.namedWindow("image")
 cv2.setMouseCallback("image", getCoord)
@@ -39,8 +39,17 @@ cv2.waitKey()
 cv2.destroyAllWindows()
 """
 
+def getNeighbourCoords(coord,size): # coord: (x,y)
+    assert size%2 == 1
+    coords = np.zeros((size,size,2))
+    up_left = (coord[0] - (size-1)/2, coord[1] - (size-1)/2)
+    yOffset = np.repeat(np.array(range(size))[np.newaxis,:].T,size,1)
+    xOffset = np.repeat(np.array(range(size))[np.newaxis,:],size,0)
+    coords[:,:,1] = np.ones((size,size))*up_left[1] + yOffset
+    coords[:,:,0] = np.ones((size,size))*up_left[0] + xOffset
+    return coords.reshape(size**2,2).astype(np.int)
+
 def plotRidgeStrAlongScale(cuboid,coords):
     for coord in coords:
         y = cuboid[coord[1],coord[0],:]
         plt.plot(y)
-        

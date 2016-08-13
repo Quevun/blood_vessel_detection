@@ -39,12 +39,14 @@ def ridgeStrength(scale,img):
     #bin2 = bin2.astype(np.uint8)*255
     #bin4 = (bin3 > 0).astype(np.uint8)*255
     #anaFunc.plotRidgeStrAlongScale(scale_deriv[:,:,2:-4],[(334,230),(293,291),(511,254),(394,350)])
+    coords = anaFunc.getNeighbourCoords((481,223),3)    #(481, 223),(632, 333),(415, 88)
+    anaFunc.plotRidgeStrAlongScale(scale_deriv[:,:,2:-4],coords)
     #ridge_str_cuboid = (ridge_str_cuboid.cuboid/np.amax(ridge_str_cuboid.cuboid)*255).astype(np.uint8)
     #for i in range(len(scale)-1):
     #    cv2.imwrite('output/ridgeStrength_results/bin_one'+str(i)+'.jpg',bin1[:,:,i])
     #for i in range(len(scale)-1):
         #cv2.imwrite('output/ridgeStrength_results/bin_two'+str(i)+'.jpg',bin2[:,:,i])
-    #    cv2.imwrite('output/ridgeStrength_results/arm'+str(i)+'.jpg',bin4[:,:,i])
+        #cv2.imwrite('output/ridgeStrength_results/marker'+str(i)+'.jpg',bin4[:,:,i])
     return bin3
     
 def connectRidgePeaks(cuboid):
@@ -74,14 +76,14 @@ def nStrongestRidges(n,ridges):
 img = cv2.imread('input/IR3/test3.bmp',cv2.IMREAD_GRAYSCALE)
 #img = cv2.pyrDown(img)
 
-scale = np.arange(1,100,1)
-ridge_cuboid = findRidge(scale,img)
+scale = np.arange(1,40,5)
+#ridge_cuboid = findRidge(scale,img)
 ridge_str_peak = ridgeStrength(scale,img)
 
-bin = ridge_cuboid[:,:,:-1]*ridge_str_peak
-bin = (bin > 0).astype(np.uint8)*255
-for i in range(np.size(bin,2)):
-    cv2.imwrite('output/findBloodVessels_results/arm'+str(i)+'.jpg',bin[:,:,i])
+#bin = ridge_cuboid[:,:,:-1]*ridge_str_peak
+#bin = (bin > 0).astype(np.uint8)*255
+#for i in range(np.size(bin,2)):
+#    cv2.imwrite('output/findBloodVessels_results/arm'+str(i)+'.jpg',bin[:,:,i])
 """
 ridges = connectRidgePeaks(bin)
 strongest = nStrongestRidges(100,ridges)
