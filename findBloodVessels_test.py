@@ -35,17 +35,17 @@ def ridgeStrength(scale,img):
     bin2 = scale_deriv2 < 0
     bin3 = (bin1*bin2[:,:,:-1])*ridge_str_cuboid.cuboid[:,:,:-1]
     ######################################################
-    bin1 = bin1.astype(np.uint8)*255
-    bin2 = bin2.astype(np.uint8)*255
-    bin4 = (bin3 > 0).astype(np.uint8)*255
+    #bin1 = bin1.astype(np.uint8)*255
+    #bin2 = bin2.astype(np.uint8)*255
+    #bin4 = (bin3 > 0).astype(np.uint8)*255
     #anaFunc.plotRidgeStrAlongScale(scale_deriv[:,:,2:-4],[(334,230),(293,291),(511,254),(394,350)])
     #ridge_str_cuboid = (ridge_str_cuboid.cuboid/np.amax(ridge_str_cuboid.cuboid)*255).astype(np.uint8)
     #for i in range(len(scale)-1):
     #    cv2.imwrite('output/ridgeStrength_results/bin_one'+str(i)+'.jpg',bin1[:,:,i])
     #for i in range(len(scale)-1):
         #cv2.imwrite('output/ridgeStrength_results/bin_two'+str(i)+'.jpg',bin2[:,:,i])
-    #    cv2.imwrite('output/ridgeStrength_results/marker'+str(i)+'.jpg',bin4[:,:,i])
-    return bin4
+    #    cv2.imwrite('output/ridgeStrength_results/arm'+str(i)+'.jpg',bin4[:,:,i])
+    return bin3
     
 def connectRidgePeaks(cuboid):
     ridges = []
@@ -76,11 +76,12 @@ img = cv2.imread('input/IR3/test3.bmp',cv2.IMREAD_GRAYSCALE)
 
 scale = np.arange(1,100,1)
 ridge_cuboid = findRidge(scale,img)
-#ridge_str_peak = ridgeStrength(scale,img)
+ridge_str_peak = ridgeStrength(scale,img)
 
-#bin = ridge_cuboid*ridge_str_peak
-#for i in range(np.size(bin,2)):
-#    cv2.imwrite('output/findBloodVessels_results/marker'+str(i)+'.jpg',bin[:,:,i]*255)
+bin = ridge_cuboid[:,:,:-1]*ridge_str_peak
+bin = (bin > 0).astype(np.uint8)*255
+for i in range(np.size(bin,2)):
+    cv2.imwrite('output/findBloodVessels_results/arm'+str(i)+'.jpg',bin[:,:,i])
 """
 ridges = connectRidgePeaks(bin)
 strongest = nStrongestRidges(100,ridges)

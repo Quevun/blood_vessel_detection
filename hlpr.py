@@ -44,7 +44,7 @@ def scaleDerivZero(scale_deriv):  # Approximate coordinates with zero crossing
     diff = (diff == -1)
     return diff  # returns cuboid with True at zero crossing coordinates, size of 2nd axis is one less than scale_deriv
     
-def zeroCross(img):
+def zeroCross(img):  # Find zero crossings
     negative = img < 0
     kernel = np.array([[0,1,0],[1,0,1],[0,1,0]])
     convolved = cv2.filter2D(negative.astype(np.int16),-1,kernel)
@@ -105,6 +105,11 @@ class ScaledImage(object):
             return self.sobelxy
         else:
             return self.sobelxy
+            
+    def derivX(self):
+        derivX = np.zeros(np.shape(self.img))
+        for i in range(np.size(self.img),1):
+            derivX[:,i] = self.img[:,i+1] - self.img[:,i-1]
             
     def dirDerivZeroCross(self,angle):        
         L_R = (angle >= 0)*(angle < np.pi/6)
