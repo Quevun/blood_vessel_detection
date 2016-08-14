@@ -14,6 +14,11 @@ def normAxis2(cuboid):  #returns 3d array normalized along 3rd axis
     max_val = max_val[:,:,np.newaxis]
     max_val = np.tile(max_val,(1,1,np.size(cuboid,2)))
     return cuboid/max_val
+    
+def enhanceRidges(img):
+    temp = img**10
+    temp2 = temp/np.amax(temp)*255
+    return temp2
 
 """
 cuboid = np.array([[[3,99,17],[15,337,945],[53,974,258]],[[47,2,97],[41,65,0],[41,57,62]],[[7,24,721],[67,25,44],[74,52,68]]])

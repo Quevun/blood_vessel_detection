@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Aug 10 14:49:37 2016
+Created on Sun Aug 14 10:10:38 2016
 
-@author: keisoku
+@author: queky
 """
+
 import hlpr
 import numpy as np
 import cv2  
@@ -18,7 +19,7 @@ def findRidge(scale,img):
     for i in range(len(scale)):
         scaled_img.append(hlpr.ScaledImage(img,scale[i]))
         ridge[:,:,i] = scaled_img[i].findRidge('curvature')
-        cv2.imwrite('output/findRidge_results/arm'+str(i)+'.jpg',scaled_img[i].getImg().astype(np.uint8)*np.invert(ridge[:,:,i]>0))
+        cv2.imwrite('output/findRidge_results/arm_enhanced'+str(i)+'.jpg',ridge[:,:,i].astype(np.uint8)*255)
     return ridge
     
 def ridgeStrength(scale,img):
@@ -37,10 +38,10 @@ def ridgeStrength(scale,img):
     ######################################################
     #bin1 = bin1.astype(np.uint8)*255
     #bin2 = bin2.astype(np.uint8)*255
-    bin4 = np.invert(bin3 > 0)
+    bin4 = (bin3 > 0).astype(np.uint8)*255
     #anaFunc.plotRidgeStrAlongScale(scale_deriv[:,:,2:-4],[(334,230),(293,291),(511,254),(394,350)])
     
-    #coords = anaFunc.getNeighbourCoords((415,88),3)    #(481, 223),(632, 333),(415, 88)(522, 190)(491, 251)(622, 325)
+    #coords = anaFunc.getNeighbourCoords((481,223),5)    #(481, 223),(632, 333),(415, 88)
     #anaFunc.plotRidgeStrAlongScale(scale_deriv[:,:,1:-1],coords)
     
     #anaFunc.plotRidgeStrAlongScale(ridge_str_cuboid.cuboid,coords)
@@ -49,7 +50,7 @@ def ridgeStrength(scale,img):
     #    cv2.imwrite('output/ridgeStrength_results/bin_one'+str(i)+'.jpg',bin1[:,:,i])
     for i in range(len(scale)-1):
         #cv2.imwrite('output/ridgeStrength_results/bin_two'+str(i)+'.jpg',bin2[:,:,i])
-        cv2.imwrite('output/ridgeStrength_results/arm'+str(i)+'.jpg',img*bin4[:,:,i])
+        cv2.imwrite('output/ridgeStrength_results/arm_enhanced'+str(i)+'.jpg',bin4[:,:,i])
     return bin3
     
 def connectRidgePeaks(cuboid):
@@ -77,22 +78,22 @@ def nStrongestRidges(n,ridges):
     return strongest
         
 img = cv2.imread('input/IR3/test3.bmp',cv2.IMREAD_GRAYSCALE)
-#img = cv2.pyrDown(img)
+img = test.enhanceRidges(img[:,300:].astype(np.float64))
 
-scale = np.arange(1,200,5)
+scale = np.arange(1,250,5)
 ridge_cuboid = findRidge(scale,img)
 ridge_str_peak = ridgeStrength(scale,img)
-bin = ridge_cuboid[:,:,:-1]*ridge_str_peak**(0.25)
 
+#bin = ridge_cuboid[:,:,:-1]*ridge_str_peak**(0.25)
 #bin2 = (bin > 0).astype(np.uint8)*255
 #for i in range(np.size(bin2,2)):
 #    cv2.imwrite('output/findBloodVessels_results/arm_big_interval'+str(i)+'.jpg',bin2[:,:,i])
-
+"""
 ridges = connectRidgePeaks(bin[:,:,2:-2])
-strongest = nStrongestRidges(10,ridges)
+strongest = nStrongestRidges(100,ridges)
 i = 0
 for ridge in strongest:
-    cv2.imwrite('output/strongest_results/arm'+str(i)+'.jpg',ridge.getImg())
+    cv2.imwrite('output/strongest_results/arm_enhanced'+str(i)+'.jpg',ridge.getImg())
     i += 1
 
 combined = np.zeros(np.shape(img))
@@ -100,4 +101,5 @@ for ridge in strongest:
     combined += ridge.getImg()
 combined = combined > 0
 combined = combined.astype(np.uint8)*255
-cv2.imwrite('combined_arm.jpg',combined)
+cv2.imwrite('combined_arm_enhanced.jpg',combined)
+"""

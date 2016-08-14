@@ -168,12 +168,12 @@ class ScaledImage(object):
             Lpp = sin_beta**2*Lxx - 2*sin_beta*cos_beta*Lxy - cos_beta**2*Lyy
             Lqq = cos_beta**2*Lxx + 2*sin_beta*cos_beta*Lxy + sin_beta**2*Lyy
             
-            #bin1 = Lq.astype(np.int32) == 0
+            #bin1 = np.around(Lq) == 0
             bin1 = zeroCross(Lq)
             bin2 = Lqq >= 0
             bin3 = abs(Lqq) >= abs(Lpp)
             bin4 = np.logical_and(bin3,np.logical_and(bin1,bin2))
-    
+            
             return bin4
             
         temp = np.sqrt(Lx**2 + Ly**2)
@@ -195,6 +195,7 @@ class ScaledImage(object):
         return bin1*bin2
 
     def getRidgeStrength(self):
+        gamma = 0.75
         scale = self.getScale()
         #Lx = self.getSobelx()
         #Ly = self.getSobely()
@@ -207,7 +208,9 @@ class ScaledImage(object):
         Lxx = self.getDerivXX()
         Lyy = self.getDerivYY()
         Lxy = self.getDerivXY() 
-        return scale**3*(Lxx+Lyy)**2*((Lxx-Lyy)**2+4*Lxy**2)
+        #return scale**3*(Lxx+Lyy)**2*((Lxx-Lyy)**2+4*Lxy**2)
+        #return scale**(1.5)*((Lxx-Lyy)**2+4*Lxy**2)
+        return scale**gamma/2*(Lxx+Lyy+np.sqrt((Lxx-Lyy)**2+4*Lxy**2))
 
 class RidgeStrCuboid(object):
     def __init__(self,img,scale):
@@ -277,7 +280,12 @@ class Ridge(object):
         y = pixel.coord[0]
         x = pixel.coord[1]
         t = pixel.coord[2]
-        adjacentCoord = ((y-1,x,t),(y+1,x,t),(y,x-1,t),(y,x+1,t),(y,x,t-1),(y,x,t+1))
+        adjacentCoord = ((y-1,x,t),(y+1,x,t),(y,x-1,t),(y,x+1,t),(y,x,t-1),(y,x,t+1),
+                         (y-1,x-1,t-1),(y-1,x,t-1),(y-1,x+1,t-1),(y-1,x-1,t),(y-1,x+1,t),
+                         (y-1,x-1,t+1),(y-1,x,t+1),(y-1,x+1,t+1),(y,x-1,t-1),(y,x+1,t-1),
+                         (y,x-1,t+1),(y,x+1,t+1),
+                         (y+1,x-1,t-1),(y+1,x,t-1),(y+1,x+1,t-1),(y+1,x-1,t),(y+1,x+1,t),
+                         (y+1,x-1,t+1),(y+1,x,t+1),(y+1,x+1,t+1))
         for coord in adjacentCoord:
             if sum(np.array(coord) < 0) > 0:    # Don't check negative coordinates
                 continue
