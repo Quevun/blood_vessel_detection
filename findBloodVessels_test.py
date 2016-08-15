@@ -18,7 +18,7 @@ def findRidge(scale,img):
     for i in range(len(scale)):
         scaled_img.append(hlpr.ScaledImage(img,scale[i]))
         ridge[:,:,i] = scaled_img[i].findRidge('curvature')
-        cv2.imwrite('output/findRidge_results/arm'+str(i)+'.jpg',scaled_img[i].getImg().astype(np.uint8)*np.invert(ridge[:,:,i]>0))
+        cv2.imwrite('output/findRidge_results/arm_hori'+str(i)+'.jpg',scaled_img[i].getImg().astype(np.uint8)*np.invert(ridge[:,:,i]>0))
     return ridge
     
 def ridgeStrength(scale,img):
@@ -49,7 +49,7 @@ def ridgeStrength(scale,img):
     #    cv2.imwrite('output/ridgeStrength_results/bin_one'+str(i)+'.jpg',bin1[:,:,i])
     for i in range(len(scale)-1):
         #cv2.imwrite('output/ridgeStrength_results/bin_two'+str(i)+'.jpg',bin2[:,:,i])
-        cv2.imwrite('output/ridgeStrength_results/arm'+str(i)+'.jpg',img*bin4[:,:,i])
+        cv2.imwrite('output/ridgeStrength_results/arm_hori'+str(i)+'.jpg',img*bin4[:,:,i])
     return bin3
     
 def connectRidgePeaks(cuboid):
@@ -76,7 +76,7 @@ def nStrongestRidges(n,ridges):
         strongest.append(ridges[index])
     return strongest
         
-img = cv2.imread('input/IR3/test3.bmp',cv2.IMREAD_GRAYSCALE)
+img = cv2.imread('input/IR3/test7.bmp',cv2.IMREAD_GRAYSCALE)
 #img = cv2.pyrDown(img)
 
 scale = np.arange(1,200,5)
@@ -89,10 +89,10 @@ bin = ridge_cuboid[:,:,:-1]*ridge_str_peak**(0.25)
 #    cv2.imwrite('output/findBloodVessels_results/arm_big_interval'+str(i)+'.jpg',bin2[:,:,i])
 
 ridges = connectRidgePeaks(bin[:,:,2:-2])
-strongest = nStrongestRidges(10,ridges)
+strongest = nStrongestRidges(100,ridges)
 i = 0
 for ridge in strongest:
-    cv2.imwrite('output/strongest_results/arm'+str(i)+'.jpg',ridge.getImg())
+    cv2.imwrite('output/strongest_results/arm_hori'+str(i)+'.jpg',ridge.getImg())
     i += 1
 
 combined = np.zeros(np.shape(img))
@@ -100,4 +100,4 @@ for ridge in strongest:
     combined += ridge.getImg()
 combined = combined > 0
 combined = combined.astype(np.uint8)*255
-cv2.imwrite('combined_arm.jpg',combined)
+cv2.imwrite('combined_arm_hori_all.jpg',combined)
