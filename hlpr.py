@@ -249,7 +249,7 @@ class BinImgCuboid(object):
 class Pixel(object):
     def __init__(self,coord,ridge_str):
         self.coord = coord
-        self.ridge_str = ridge_str
+        self.ridge_str = np.nan_to_num(ridge_str)
         
     def getCoord(self):
         return (self.coord[0],self.coord[1],self.coord[2])
