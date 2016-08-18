@@ -21,7 +21,7 @@ def hessEig(sobelxx,sobelxy,sobelyy):
     
 ###########################################################################
 
-img = cv2.imread('input/IR3/test3.bmp',cv2.IMREAD_GRAYSCALE)
+img = cv2.imread('input/IR3/test7.bmp',cv2.IMREAD_GRAYSCALE)
 small = cv2.pyrDown(img)
 small = cv2.GaussianBlur(small,(9,9),30)
 #small = cv2.pyrDown(small)
@@ -44,7 +44,7 @@ sobelxy = cv2.Sobel(small,cv2.CV_64F,1,1,ksize=13)
 
 maj_thres = 300000
 min_thres = 1
-eigval_array = hessEig(sobelxx,sobelxy,sobelyy)
+#eigval_array = hessEig(sobelxx,sobelxy,sobelyy)
 major = np.amax(eigval_array,2) > maj_thres
 cv2.imshow('stuff',major.astype(np.uint8)*255)
 cv2.waitKey()
@@ -65,4 +65,4 @@ cv2.imshow('stuff',upscale)
 cv2.waitKey()
 cv2.destroyAllWindows()
 
-cv2.imwrite('output/results3/test3-ksize13-gauss9-3.jpg',upscale)
+cv2.imwrite('output/eigen_results/arm_hori.jpg',upscale)

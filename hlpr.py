@@ -7,7 +7,6 @@ Created on Sat Jul 23 14:18:32 2016
 import cv2
 import numpy as np
 import copy
-import test
 
 def getScaleSpace(img,scale):
     sigma = np.sqrt(scale)
@@ -32,17 +31,42 @@ def float2uint(sobelx):
     sobelx = sobelx.astype(np.uint8)
     return sobelx
     
-def axis2Diff(cuboid):
-    diff = np.zeros((np.size(cuboid,0),np.size(cuboid,1),np.size(cuboid,2)-1))
-    for i in range(np.size(cuboid,2)-1):
-        diff[:,:,i] = cuboid[:,:,i+1]-cuboid[:,:,i]
+def axis2Diff(cuboid,anchor = 'left'):
+    cuboid_size2 = np.size(cuboid,2)
+    diff = np.zeros((np.size(cuboid,0),np.size(cuboid,1),cuboid_size2))
+
+    if anchor == 'left':
+        for i in range(cuboid_size2):
+            diff[:,:,i] = cuboid[:,:,(i+1)%cuboid_size2]-cuboid[:,:,i]
+            
+    elif anchor == 'right':
+        for i in range(cuboid_size2):
+            diff[:,:,i] = cuboid[:,:,i]-cuboid[:,:,i-1]
+            
     return diff
     
 def scaleDerivZero(scale_deriv):  # Approximate coordinates with zero crossing
+    """# old method
     positive = scale_deriv > 0
     diff = axis2Diff(positive.astype(np.int8))  # Coordinates with transition from positive to negative will have -1
     diff = (diff == -1)
     return diff  # returns cuboid with True at zero crossing coordinates, size of 2nd axis is one less than scale_deriv
+    """
+    abs_scale_deriv = abs(scale_deriv)
+    positive = (scale_deriv > 0).astype(np.int8)
+    
+    bool_diff_left = axis2Diff(positive,'left')    #convolution with [-1,1] with anchor on -1
+    bool_diff_left = (bool_diff_left == -1)
+    deriv_diff_left = axis2Diff(abs_scale_deriv,'left')   #convolution with [-1,1] with anchor on -1
+    zero_cross1 = deriv_diff_left >= 0
+    zero_cross1 = zero_cross1 * bool_diff_left
+    
+    bool_diff_right = axis2Diff(positive,'right')   #convolution with [-1,1] with anchor on 1
+    bool_diff_right = (bool_diff_right == -1)
+    deriv_diff_right = axis2Diff(abs_scale_deriv,'right')   #convolution with [-1,1] with anchor on 1
+    zero_cross2 = deriv_diff_right < 0
+    zero_cross2 = zero_cross2 * bool_diff_right
+    return zero_cross1+zero_cross2
     
 def zeroCross(img):  # Find zero crossings
     negative = img < 0
@@ -168,8 +192,8 @@ class ScaledImage(object):
             Lpp = sin_beta**2*Lxx - 2*sin_beta*cos_beta*Lxy - cos_beta**2*Lyy
             Lqq = cos_beta**2*Lxx + 2*sin_beta*cos_beta*Lxy + sin_beta**2*Lyy
             
-            #bin1 = np.around(Lq) == 0
-            bin1 = zeroCross(Lq)
+            bin1 = np.around(Lq) == 0
+            #bin1 = zeroCross(Lq)
             bin2 = Lqq >= 0
             bin3 = abs(Lqq) >= abs(Lpp)
             bin4 = np.logical_and(bin3,np.logical_and(bin1,bin2))

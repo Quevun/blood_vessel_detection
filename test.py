@@ -43,3 +43,7 @@ cv2.imshow('stuff',zero_cross)
 cv2.waitKey()
 cv2.destroyAllWindows()
 """
+
+#test hlpr.scaleDerivZero
+cuboid = np.random.rand(3,3,6)-0.5
+zero_cross = hlpr.scaleDerivZero(cuboid)
