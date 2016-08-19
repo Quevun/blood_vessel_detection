@@ -192,8 +192,8 @@ class ScaledImage(object):
             Lpp = sin_beta**2*Lxx - 2*sin_beta*cos_beta*Lxy - cos_beta**2*Lyy
             Lqq = cos_beta**2*Lxx + 2*sin_beta*cos_beta*Lxy + sin_beta**2*Lyy
             
-            bin1 = np.around(Lq) == 0
-            #bin1 = zeroCross(Lq)
+            #bin1 = np.around(Lq) == 0
+            bin1 = zeroCross(Lq)
             bin2 = Lqq >= 0
             bin3 = abs(Lqq) >= abs(Lpp)
             bin4 = np.logical_and(bin3,np.logical_and(bin1,bin2))
