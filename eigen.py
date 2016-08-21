@@ -44,7 +44,7 @@ sobelxy = cv2.Sobel(small,cv2.CV_64F,1,1,ksize=13)
 
 maj_thres = 300000
 min_thres = 1
-#eigval_array = hessEig(sobelxx,sobelxy,sobelyy)
+eigval_array = hessEig(sobelxx,sobelxy,sobelyy)
 major = np.amax(eigval_array,2) > maj_thres
 cv2.imshow('stuff',major.astype(np.uint8)*255)
 cv2.waitKey()

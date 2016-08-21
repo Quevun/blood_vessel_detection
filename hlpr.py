@@ -31,6 +31,14 @@ def float2uint(sobelx):
     sobelx = sobelx.astype(np.uint8)
     return sobelx
     
+def getGaussianDerivatives(scale,order):
+    sigma = np.sqrt(scale)
+    size = int(np.ceil(sigma)*10+1+order)  # add order to size to find derivative of gaussian kernel border
+    gaussian = cv2.getGaussianKernel(size,sigma)
+    gaussian = np.dot(gaussian,gaussian.T)
+    
+    
+    
 def axis2Diff(cuboid,anchor = 'left'):
     cuboid_size2 = np.size(cuboid,2)
     diff = np.zeros((np.size(cuboid,0),np.size(cuboid,1),cuboid_size2))
@@ -79,7 +87,49 @@ def zeroCross(img):  # Find zero crossings
     zero_cross2 = negative * (convolved == 0)
     return zero_cross1+zero_cross2
     
-class ScaledImage(object):
+class Img(object):
+    def getDerivX(self):   # Might want to implement these at the cuboid level for efficiency
+        self.derivX = np.zeros(np.shape(self.img))
+        for i in range(np.size(self.img,1)):
+            self.derivX[:,i] = self.img[:,(i+1)%np.size(self.img,1)] - self.img[:,i-1]
+        return self.derivX
+        
+    def getDerivY(self):
+        self.derivY = np.zeros(np.shape(self.img))
+        for i in range(np.size(self.img,0)):
+            self.derivY[i,:] = self.img[(i+1)%np.size(self.img,0),:] - self.img[i-1,:]
+        return self.derivY
+        
+    def getDerivXX(self):
+        self.derivXX = np.zeros(np.shape(self.img))
+        for i in range(np.size(self.img,1)):
+            self.derivXX[:,i]=self.derivX[:,(i+1)%np.size(self.img,1)]-self.derivX[:,i-1]
+        return self.derivXX
+        
+    def getDerivYY(self):
+        self.derivYY = np.zeros(np.shape(self.img))
+        for i in range(np.size(self.img,0)):
+            self.derivYY[i,:]=self.derivY[(i+1)%np.size(self.img,0),:]-self.derivY[i-1,:]
+        return self.derivYY
+        
+    def getDerivXY(self):
+        self.derivXY = np.zeros(np.shape(self.img))
+        for i in range(np.size(self.img,0)):
+            self.derivXY[i,:]=self.derivX[(i+1)%np.size(self.img,0),:]-self.derivX[i-1,:]
+        return self.derivXY
+    
+class GaussianDeriv(Img):
+    def __init__(self,scale,order):
+        sigma = np.sqrt(scale)
+        size = int(np.ceil(sigma)*10+1+order)  # add order to size to find derivative of gaussian kernel border
+        gaussian = cv2.getGaussianKernel(size,sigma)
+        self.img = np.dot(gaussian,gaussian.T)
+        
+        self.Gx = self.getDerivX()
+        self.Gy = self.getDerivY()
+        self.
+    
+class ScaledImage(Img):
     def __init__(self,img,scale):
         self.scale = scale
         self.img = getScaledImg(img,scale) # floating point image
@@ -129,41 +179,6 @@ class ScaledImage(object):
             return self.sobelxy
         else:
             return self.sobelxy
-            
-    def getDerivX(self):   # Might want to implement these at the cuboid level for efficiency
-        self.derivX = np.zeros(np.shape(self.img))
-        for i in range(np.size(self.img,1)):
-            self.derivX[:,i] = self.img[:,(i+1)%np.size(self.img,1)] - self.img[:,i-1]
-        return self.derivX
-        
-    def getDerivY(self):
-        self.derivY = np.zeros(np.shape(self.img))
-        for i in range(np.size(self.img,0)):
-            self.derivY[i,:] = self.img[(i+1)%np.size(self.img,0),:] - self.img[i-1,:]
-        return self.derivY
-        
-    def getDerivXX(self):
-        self.derivXX = np.zeros(np.shape(self.img))
-        for i in range(np.size(self.img,1)):
-            self.derivXX[:,i]=self.derivX[:,(i+1)%np.size(self.img,1)]-self.derivX[:,i-1]
-        return self.derivXX
-        
-    def getDerivYY(self):
-        self.derivYY = np.zeros(np.shape(self.img))
-        for i in range(np.size(self.img,0)):
-            self.derivYY[i,:]=self.derivY[(i+1)%np.size(self.img,0),:]-self.derivY[i-1,:]
-        return self.derivYY
-        
-    def getDerivXY(self):
-        self.derivXY = np.zeros(np.shape(self.img))
-        for i in range(np.size(self.img,0)):
-            self.derivXY[i,:]=self.derivX[(i+1)%np.size(self.img,0),:]-self.derivX[i-1,:]
-        return self.derivXY
-        
-    #def dirDerivZeroCross(self,angle):        
-    #    L_R = (angle >= 0)*(angle < np.pi/6)
-    #    upR_downL = (beta >= np.pi/6)*(beta < np.pi/3)
-    #    up_down = (beta >= np.pi/3)*(beta < np.pi/2)
     
     def findRidge(self,method='gradient'):
         #Lx = self.getSobelx()
@@ -193,10 +208,11 @@ class ScaledImage(object):
             Lqq = cos_beta**2*Lxx + 2*sin_beta*cos_beta*Lxy + sin_beta**2*Lyy
             
             #bin1 = np.around(Lq) == 0
-            bin1 = zeroCross(Lq)
+            #bin1 = zeroCross(Lq)
             bin2 = Lqq >= 0
             bin3 = abs(Lqq) >= abs(Lpp)
-            bin4 = np.logical_and(bin3,np.logical_and(bin1,bin2))
+            #bin4 = np.logical_and(bin3,np.logical_and(bin1,bin2))
+            bin4 = bin2*bin3
             
             return bin4
             

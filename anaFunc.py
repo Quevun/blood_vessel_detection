@@ -33,7 +33,7 @@ def getCoord(event,x,y,flags,param):
 """       
 img = cv2.imread('input/marker.bmp',cv2.IMREAD_GRAYSCALE)
 cv2.namedWindow("image")
-cv2.setMouseCallback("image", getCoord)
+cv2.setMouseCallback("image", anaFunc.getCoord)
 cv2.imshow('image',img)
 cv2.waitKey()
 cv2.destroyAllWindows()
@@ -53,3 +53,18 @@ def plotRidgeStrAlongScale(cuboid,coords):
     for coord in coords:
         y = cuboid[coord[1],coord[0],:]
         plt.plot(y)
+        
+def plotAlongAxis(axis,mat,index):
+    if axis == 0:
+        y = mat[200:300,index]
+        plt.plot(y)
+    elif axis == 1:
+        y = mat[index,:]
+        plt.plot(y)
+        
+"""
+img = cv2.imread('input/IR3/test7.bmp',cv2.IMREAD_GRAYSCALE)
+for scale in range(5):
+    scaled = hlpr.ScaledImage(img,scale)
+    anaFunc.plotAlongAxis(0,scaled.getImg,452)
+"""
