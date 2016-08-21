@@ -31,14 +31,6 @@ def float2uint(sobelx):
     sobelx = sobelx.astype(np.uint8)
     return sobelx
     
-def getGaussianDerivatives(scale,order):
-    sigma = np.sqrt(scale)
-    size = int(np.ceil(sigma)*10+1+order)  # add order to size to find derivative of gaussian kernel border
-    gaussian = cv2.getGaussianKernel(size,sigma)
-    gaussian = np.dot(gaussian,gaussian.T)
-    
-    
-    
 def axis2Diff(cuboid,anchor = 'left'):
     cuboid_size2 = np.size(cuboid,2)
     diff = np.zeros((np.size(cuboid,0),np.size(cuboid,1),cuboid_size2))
@@ -118,6 +110,7 @@ class Img(object):
             self.derivXY[i,:]=self.derivX[(i+1)%np.size(self.img,0),:]-self.derivX[i-1,:]
         return self.derivXY
     
+"""
 class GaussianDeriv(Img):
     def __init__(self,scale,order):
         sigma = np.sqrt(scale)
@@ -127,7 +120,7 @@ class GaussianDeriv(Img):
         
         self.Gx = self.getDerivX()
         self.Gy = self.getDerivY()
-        self.
+"""
     
 class ScaledImage(Img):
     def __init__(self,img,scale):

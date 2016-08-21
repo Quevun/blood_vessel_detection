@@ -73,3 +73,16 @@ cv2.imshow("skel",skel)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 """
+
+"""# test getData.py
+vessel_bin = np.random.rand(3,3) > 0.5
+index = np.nonzero(vessel_bin)
+sample_size = np.size(index[0])
+v = [np.zeros((len(scales),5)) for _ in xrange(sample_size)]Ix = np.array([1,2,3,4,5])
+######
+Ix = np.random.rand(3,3)
+Iy = np.random.rand(3,3)
+Ixx = np.random.rand(3,3)
+Iyy = np.random.rand(3,3)
+Ixy = np.random.rand(3,3)
+"""
