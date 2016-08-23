@@ -48,8 +48,8 @@ cv2.destroyAllWindows()
 cuboid = np.random.rand(3,3,6)-0.5
 zero_cross = hlpr.scaleDerivZero(cuboid)
 """
- """
-#skeleton
+
+"""#skeleton
 img = cv2.imread('output/eigen_results/arm_hori.jpg',0)
 size = np.size(img)
 skel = np.zeros(img.shape,np.uint8)

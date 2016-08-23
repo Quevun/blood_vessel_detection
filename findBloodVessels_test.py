@@ -17,7 +17,7 @@ def findRidge(scale,img):
     assert step%2 == 1  # Odd number for convenience
     assert scale[0] - (step-1)/2 > 0
     ridge = np.zeros((np.size(img,0),np.size(img,1),len(scale))).astype(np.bool)
-    """
+    
     for i in range(len(scale)):
         for j in range(scale[i]-(step-1)/2,scale[i]+(step-1)/2+1):
             ridge[:,:,i] += hlpr.ScaledImage(img,j).findRidge('curvature')
@@ -26,8 +26,8 @@ def findRidge(scale,img):
     for i in range(len(scale)):
         scaled_img.append(hlpr.ScaledImage(img,scale[i]))
         ridge[:,:,i] = scaled_img[i].findRidge('curvature')
-        cv2.imwrite('output/findRidge_results/test_seven_relaxed'+str(i)+'.jpg',scaled_img[i].getImg().astype(np.uint8)*np.invert(ridge[:,:,i]))
-    
+        #cv2.imwrite('output/findRidge_results/test_seven_Lp'+str(i)+'.jpg',scaled_img[i].getImg().astype(np.uint8)*np.invert(ridge[:,:,i]))
+    """
     #constant = np.repeat(ridge[:,:,2][:,:,np.newaxis],len(scale),2)
     return ridge
     
@@ -91,9 +91,9 @@ img = cv2.imread('input/IR3/test7.bmp',cv2.IMREAD_GRAYSCALE)
 
 scale = np.arange(3,200,5)
 ridge_cuboid = findRidge(scale,img)
-#ridge_str_peak = ridgeStrength(scale,img)
-#bin = ridge_cuboid[:,:,:]*ridge_str_peak
-"""
+ridge_str_peak = ridgeStrength(scale,img)
+bin = ridge_cuboid[:,:,:]*ridge_str_peak
+
 #bin2 = (bin > 0).astype(np.uint8)*255
 #for i in range(np.size(bin2,2)):
 #    cv2.imwrite('output/findBloodVessels_results/arm_hori_constant'+str(i)+'.jpg',bin2[:,:,i])
@@ -111,5 +111,5 @@ for ridge in strongest:
     combined += ridge.getImg()
 combined = combined > 0
 combined = combined.astype(np.uint8)*255
-cv2.imwrite('output/combined/combined_test_seven_relaxed.jpg',combined)
-"""
+combined = (combined == 0)*img
+cv2.imwrite('output/combined/test_seven.jpg',combined)
