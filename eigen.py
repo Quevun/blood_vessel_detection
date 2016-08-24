@@ -7,7 +7,6 @@ Created on Thu Jun 23 11:15:11 2016
 
 import cv2
 import numpy as np
-from float2uint import *
 
 ############################################################################
 def hessEig(sobelxx,sobelxy,sobelyy):
@@ -65,4 +64,4 @@ cv2.imshow('stuff',upscale)
 cv2.waitKey()
 cv2.destroyAllWindows()
 
-cv2.imwrite('output/eigen_results/arm_hori.jpg',upscale)
+cv2.imwrite('output/eigen_results/arm_hori2.jpg',(upscale==255).astype(np.uint8)*255)

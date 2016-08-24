@@ -1,21 +1,31 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Jul 25 17:14:15 2016
+Created on Wed Aug 24 07:27:11 2016
 
-@author: keisoku
+@author: queky
 """
-
 import cv2
 import numpy as np
-import hlpr
 
-def findRidge(scale):
-    img = cv2.imread('input/IR3/test3.bmp',cv2.IMREAD_GRAYSCALE)
-    scaled_img = []
-    ridge = np.zeros((np.size(img,0),np.size(img,1),len(scale)))
-    
-    for i in range(len(scale)):
-        scaled_img.append(hlpr.ScaledImage(img,scale[i]))
-        ridge[:,:,i] = scaled_img[i].findRidge()
-    
-    return ridge
+img = cv2.imread('output/eigen_results/arm_hori.jpg',0)
+size = np.size(img)
+skel = np.zeros(img.shape,np.uint8)
+ 
+ret,img = cv2.threshold(img,127,255,cv2.THRESH_BINARY)
+element = cv2.getStructuringElement(cv2.MORPH_CROSS,(3,3))
+done = False
+ 
+while( not done):
+    eroded = cv2.erode(img,element)
+    temp = cv2.dilate(eroded,element)
+    temp = cv2.subtract(img,temp)
+    skel = cv2.bitwise_or(skel,temp)
+    img = eroded.copy()
+ 
+    zeros = size - cv2.countNonZero(img)
+    if zeros==size:
+        done = True
+ 
+cv2.imshow("skel",skel)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
