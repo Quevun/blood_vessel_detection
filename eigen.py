@@ -65,3 +65,4 @@ cv2.waitKey()
 cv2.destroyAllWindows()
 
 cv2.imwrite('output/eigen_results/arm_hori2.jpg',(upscale==255).astype(np.uint8)*255)
+np.save('eigen_arm_hori',(upscale==255).astype(np.uint8)*255)
