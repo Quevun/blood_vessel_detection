@@ -7,6 +7,7 @@ Created on Fri Jul 29 07:05:33 2016
 import hlpr
 import numpy as np
 import cv2
+import morphology
 
 
 def normAxis2(cuboid):  #returns 3d array normalized along 3rd axis
@@ -86,3 +87,13 @@ Ixx = np.random.rand(3,3)
 Iyy = np.random.rand(3,3)
 Ixy = np.random.rand(3,3)
 """
+
+#test morphology.py
+img = (np.random.rand(10,10)>0.8).astype(np.uint8)*255
+#img = np.array([[0,0,0],[255,255,0],[0,0,0]])
+#img = np.load('output/test.npy')
+struc_ele = np.array([[-1,0,0],[1,1,0],[-1,0,0]])
+hit_or_miss = morphology.hitOrMiss(img,struc_ele)
+print img
+print ''
+print hit_or_miss.astype(np.uint8)*255
