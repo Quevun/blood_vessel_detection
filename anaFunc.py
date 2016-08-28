@@ -7,8 +7,6 @@ Created on Tue Aug 09 14:27:44 2016
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-from mpl_toolkits.mplot3d import Axes3D
-import hlpr
 
 
 def plotImg(img):
@@ -30,10 +28,11 @@ plotImg(img)
 def getCoord(event,x,y,flags,param):
     if event == cv2.EVENT_LBUTTONDOWN:
         print (x,y)
-"""       
+ 
+"""
 img = cv2.imread('input/marker.bmp',cv2.IMREAD_GRAYSCALE)
 cv2.namedWindow("image")
-cv2.setMouseCallback("image", anaFunc.getCoord)
+cv2.setMouseCallback("image", getCoord)
 cv2.imshow('image',img)
 cv2.waitKey()
 cv2.destroyAllWindows()

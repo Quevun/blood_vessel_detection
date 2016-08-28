@@ -10,10 +10,35 @@ import skimage.morphology
 import morphology
 import anaFunc
 
+def getCoords(event,x,y,flags,params):
+    if event == cv2.EVENT_LBUTTONDOWN:
+        if len(params[1]) < 2 and len(params[2]) < 2:
+            params[1].append(x)
+            params[2].append(y)
+        if len(params[1]) == 2 and len(params[2]) == 2:
+            minX = min(params[1])
+            maxX = max(params[1])
+            minY = min(params[2])
+            maxY = max(params[2])
+            sizeX = maxX - minX + 1
+            sizeY = maxY - minY + 1
+            remove_patch = img[minY:maxY+1,minX:maxX+1]
+            params[3].append((minX,maxX,minY,maxY,remove_patch))
+            img[minY:maxY+1,minX:maxX+1] = np.zeros((sizeY,sizeX))
+
 def manualRemove(img):
-    while not key == 13:
-        cv2.imshow('Manual White Pixel Removal',img)
-        cv2.setMouseCallback('image', anaFunc.getCoord)
+    params = (img,list(),list(),list())
+    key = None
+    cv2.imshow('Manual White Pixel Removal',img)
+    cv2.setMouseCallback('image', anaFunc.getCoord,params)
+    while not (key == 13): # End loop when 'Enter' is pressed
+        key = cv2.waitKey()
+        if key == 122:  #When 'z' is pressed, undo previous removal
+            minX,maxX,minY,maxY,removed = params[3].pop()
+            img[minY:maxY+1,minX:maxX+1] = removed
+            cv2.imshow('Manual White Pixel Removal',img)
+        elif key == 117:    # When 'u' is pressed update image
+            cv2.imshow('Manual White Pixel Removal',img)
 
 img = np.load('output/eigen_arm_hori.npy')
 skel = skimage.morphology.skeletonize(img>0)

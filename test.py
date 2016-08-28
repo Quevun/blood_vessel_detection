@@ -88,6 +88,7 @@ Iyy = np.random.rand(3,3)
 Ixy = np.random.rand(3,3)
 """
 
+"""
 #test morphology.py
 img = (np.random.rand(10,10)>0.8).astype(np.uint8)*255
 #img = np.array([[0,0,0],[255,255,0],[0,0,0]])
@@ -97,3 +98,14 @@ hit_or_miss = morphology.hitOrMiss(img,struc_ele)
 print img
 print ''
 print hit_or_miss.astype(np.uint8)*255
+"""
+
+"""# test multiple waitKey()
+img = cv2.imread('input/IR3/test7.bmp',0)
+img2 = cv2.imread('input/IR3/test5.bmp',0)
+cv2.imshow('stuff',img)
+key = cv2.waitKey(1000)
+cv2.imshow('stuff',img2)
+key = cv2.waitKey(1000)
+cv2.destroyAllWindows()
+"""
