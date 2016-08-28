@@ -20,11 +20,7 @@ def findRidge(scale,img):
     for i in range(len(scale)):
         for j in range(scale[i]-(step-1)/2,scale[i]+(step-1)/2+1):
             ridge[:,:,i] += hlpr.ScaledImage(img,j).findRidge('curvature')
-        #cv2.imwrite('output/findRidge_results/arm_lumped'+str(i)+'.jpg',img*np.invert(ridge[:,:,i]))
-            
-    black = img*np.invert(ridge[:,:,2])
-    white = ridge[:,:,15]*np.ones(np.shape(ridge[:,:,15])).astype(np.uint8)*255 + black*np.invert(ridge[:,:,15])
-    cv2.imwrite('output/findRidge_results/comparison.jpg',white)   
+        #cv2.imwrite('output/findRidge_results/arm_lumped'+str(i)+'.jpg',img*np.invert(ridge[:,:,i]))   
     """
     for i in range(len(scale)):
         scaled_img.append(hlpr.ScaledImage(img,scale[i]))
@@ -50,7 +46,7 @@ def ridgeStrength(scale,img):
     ######################################################
     #bin1 = bin1.astype(np.uint8)*255
     #bin2 = bin2.astype(np.uint8)*255
-    bin4 = np.invert(bin3 > 0)
+    #bin4 = np.invert(bin3 > 0)
     #anaFunc.plotRidgeStrAlongScale(scale_deriv[:,:,2:-4],[(334,230),(293,291),(511,254),(394,350)])
     
     #coords = anaFunc.getNeighbourCoords((415,88),3)    #(481, 223),(632, 333),(415, 88)(522, 190)(491, 251)(622, 325)
@@ -94,13 +90,13 @@ img = cv2.imread('input/IR3/test7.bmp',cv2.IMREAD_GRAYSCALE)
 
 scale = np.arange(3,200,5)
 ridge_cuboid = findRidge(scale,img)
-#ridge_str_peak = ridgeStrength(scale,img)
-#bin = ridge_cuboid[:,:,:]*ridge_str_peak
+ridge_str_peak = ridgeStrength(scale,img)
+bin = ridge_cuboid[:,:,:]*ridge_str_peak
 
 #bin2 = (bin > 0).astype(np.uint8)*255
 #for i in range(np.size(bin2,2)):
 #    cv2.imwrite('output/findBloodVessels_results/arm_hori_constant'+str(i)+'.jpg',bin2[:,:,i])
-"""
+
 ridges = connectRidgePeaks(bin[:,:,2:-2])
 strongest = nStrongestRidges(50,ridges)
 
@@ -110,10 +106,9 @@ strongest = nStrongestRidges(50,ridges)
 #    i += 1
 
 combined = np.zeros(np.shape(img))
-for ridge in strongest:
+for ridge in ridges:
     combined += ridge.getImg()
 combined = combined > 0
 combined = combined.astype(np.uint8)*255
 combined = (combined == 0)*img
-cv2.imwrite('output/combined/test_seven.jpg',combined)
-"""
+cv2.imwrite('output/combined/test_eight.jpg',combined)
