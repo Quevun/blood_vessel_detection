@@ -15,22 +15,26 @@ def getCoords(event,x,y,flags,params):
         if len(params[1]) < 2 and len(params[2]) < 2:
             params[1].append(x)
             params[2].append(y)
+            print 'appended coordinate (' + str(x) + ',' + str(y) +')'
         if len(params[1]) == 2 and len(params[2]) == 2:
+            print 'removing patch'
             minX = min(params[1])
             maxX = max(params[1])
             minY = min(params[2])
             maxY = max(params[2])
             sizeX = maxX - minX + 1
             sizeY = maxY - minY + 1
-            remove_patch = img[minY:maxY+1,minX:maxX+1]
+            remove_patch = params[0][minY:maxY+1,minX:maxX+1]
             params[3].append((minX,maxX,minY,maxY,remove_patch))
-            img[minY:maxY+1,minX:maxX+1] = np.zeros((sizeY,sizeX))
+            params[0][minY:maxY+1,minX:maxX+1] = np.zeros((sizeY,sizeX))
+            del params[1][:]
+            del params[2][:]
 
 def manualRemove(img):
     params = (img,list(),list(),list())
     key = None
     cv2.imshow('Manual White Pixel Removal',img)
-    cv2.setMouseCallback('image', anaFunc.getCoord,params)
+    cv2.setMouseCallback('Manual White Pixel Removal', getCoords,params)
     while not (key == 13): # End loop when 'Enter' is pressed
         key = cv2.waitKey()
         if key == 122:  #When 'z' is pressed, undo previous removal
@@ -38,9 +42,12 @@ def manualRemove(img):
             img[minY:maxY+1,minX:maxX+1] = removed
             cv2.imshow('Manual White Pixel Removal',img)
         elif key == 117:    # When 'u' is pressed update image
+            print 'u pressed'
             cv2.imshow('Manual White Pixel Removal',img)
+    cv2.destroyAllWindows()
 
-img = np.load('output/eigen_arm_hori.npy')
+grayscale = cv2.imread('input/IR3/test7.bmp',0)
+img = np.load('eigen_arm_hori.npy')
 skel = skimage.morphology.skeletonize(img>0)
 #skel = np.random.rand(10,10)>0.6
 branch_len = 20
@@ -56,10 +63,12 @@ for i in range(branch_len):
         end_points = end_points + morphology.hitOrMiss(pruned,struc_ele)
     pruned = pruned * np.invert(end_points)
 
-cv2.imwrite('output/pruned.jpg',pruned)
+cv2.imwrite('output/pruned.jpg',np.invert(pruned==255)*grayscale)
     
 struc_ele3 = np.array([[0,0,0],[0,1,0],[0,0,0]])
 single_points = morphology.hitOrMiss(pruned,struc_ele3)
 pruned = pruned * np.invert(single_points)
 
-cv2.imwrite('output/pruned_cleaned.jpg',pruned)
+cv2.imwrite('output/pruned_cleaned.jpg',np.invert(pruned==255)*grayscale)
+
+manualRemove(pruned)

@@ -27,9 +27,6 @@ small = cv2.GaussianBlur(small,(9,9),30)
 #small = cv2.pyrDown(small)
 #small = cv2.pyrDown(small)
 #small = cv2.GaussianBlur(small,(7,7),5)
-cv2.imshow('stuff',small)
-cv2.waitKey()
-cv2.destroyAllWindows()
 
 sobelxx = cv2.Sobel(small,cv2.CV_64F,2,0,ksize=13)
 sobelyy = cv2.Sobel(small,cv2.CV_64F,0,2,ksize=13)
@@ -45,24 +42,16 @@ maj_thres = 300000
 min_thres = 1
 eigval_array = hessEig(sobelxx,sobelxy,sobelyy)
 major = np.amax(eigval_array,2) > maj_thres
-cv2.imshow('stuff',major.astype(np.uint8)*255)
-cv2.waitKey()
-cv2.destroyAllWindows()
 minor = abs(np.amin(eigval_array,2)) < min_thres
 bin = np.logical_and(major,minor)
 bin = bin.astype(np.uint8) * 255
-
-cv2.imshow('stuff',bin)
-cv2.waitKey()
-cv2.destroyAllWindows()
 
 upscale = cv2.pyrUp(major.astype(np.uint8)*255)
 #upscale = cv2.pyrUp(upscale)
 #upscale = cv2.pyrUp(upscale)
 #upscale = cv2.pyrUp(upscale)
-cv2.imshow('stuff',upscale)
-cv2.waitKey()
-cv2.destroyAllWindows()
 
-cv2.imwrite('output/eigen_results/arm_hori2.jpg',(upscale==255).astype(np.uint8)*255)
+detected_valleys = img * np.invert(upscale == 255)
+
+cv2.imwrite('output/eigen_results/test_seven.jpg',detected_valleys)
 np.save('eigen_arm_hori',(upscale==255).astype(np.uint8)*255)
