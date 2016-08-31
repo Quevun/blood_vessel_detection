@@ -110,3 +110,8 @@ key = cv2.waitKey(1000)
 cv2.destroyAllWindows()
 """
 
+img = cv2.imread('input/color&IR/color1.bmp')
+hsv = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
+cv2.imwrite('output/hue.jpg',hsv[:,:,0])
+cv2.imwrite('output/sat.jpg',hsv[:,:,1])
+cv2.imwrite('output/val.jpg',hsv[:,:,2])
