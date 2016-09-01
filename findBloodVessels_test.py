@@ -98,7 +98,7 @@ bin = ridge_cuboid[:,:,:]*ridge_str_peak
 #    cv2.imwrite('output/findBloodVessels_results/arm_hori_constant'+str(i)+'.jpg',bin2[:,:,i])
 
 ridges = connectRidgePeaks(bin[:,:,2:-2])
-strongest = nStrongestRidges(50,ridges)
+strongest = nStrongestRidges(30,ridges)
 
 #i = 0
 #for ridge in strongest:
@@ -106,9 +106,10 @@ strongest = nStrongestRidges(50,ridges)
 #    i += 1
 
 combined = np.zeros(np.shape(img))
-for ridge in ridges:
+for ridge in strongest:
     combined += ridge.getImg()
 combined = combined > 0
 combined = combined.astype(np.uint8)*255
-combined = (combined == 0)*img
-cv2.imwrite('output/combined/test_eight.jpg',combined)
+color = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
+color[:,:,2] = color[:,:,2]*(combined==0)+combined
+cv2.imwrite('output/combined/test_seven.jpg',color)
