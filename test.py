@@ -8,6 +8,7 @@ import hlpr
 import numpy as np
 import cv2
 import morphology
+import makeTrainSet
 
 
 def normAxis2(cuboid):  #returns 3d array normalized along 3rd axis
@@ -110,8 +111,18 @@ key = cv2.waitKey(1000)
 cv2.destroyAllWindows()
 """
 
-img = cv2.imread('input/color&IR/color1.bmp')
-hsv = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
-cv2.imwrite('output/hue.jpg',hsv[:,:,0])
-cv2.imwrite('output/sat.jpg',hsv[:,:,1])
-cv2.imwrite('output/val.jpg',hsv[:,:,2])
+"""
+# test makeTrainSet.py
+Ix = (np.random.rand(3,3)*100).astype(np.uint8)
+Iy = (np.random.rand(3,3)*100).astype(np.uint8)
+Ixx = (np.random.rand(3,3)*100).astype(np.uint8)
+Iyy = (np.random.rand(3,3)*100).astype(np.uint8)
+Ixy = (np.random.rand(3,3)*100).astype(np.uint8)
+
+index = (np.array([0,1,2]),np.array([0,2,1]))
+"""
+
+# test randNonVessel
+shape = (4L,4L)
+vessel_index = (np.array([0,0,1,1,2,2]),np.array([1,2,0,2,0,1]))
+foo = makeTrainSet.randNonVessel(shape,vessel_index)

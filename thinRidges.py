@@ -72,4 +72,4 @@ pruned = pruned * np.invert(single_points)
 cv2.imwrite('output/pruned_cleaned.jpg',np.invert(pruned==255)*grayscale)
 
 manualRemove(pruned)
-cv2.imwrite('output/hand_cleaned.jpg',pruned)
+np.save('output/test_seven_vessels',pruned)
