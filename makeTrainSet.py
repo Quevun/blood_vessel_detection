@@ -2,7 +2,7 @@
 """
 Created on Sun Aug 21 14:34:15 2016
 
-@author: queky
+@author: Quek Yu Yang
 """
 
 import cv2
